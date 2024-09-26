@@ -3,7 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generador SCORM</title>
+    <title>Generador HL SCORM</title>
+    <style>
+        #progress-bar {
+            width: 100%;
+            background-color: #f3f3f3;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        #progress-bar-fill {
+            height: 20px;
+            width: 0;
+            background-color: #4caf50;
+            border-radius: 5px;
+            text-align: center;
+            line-height: 20px;
+            color: white;
+        }
+    </style>
 </head>
 <body>
     <h1>Generador de Paquetes SCORM</h1>
@@ -29,7 +48,10 @@
         <button type="button" onclick="generarSCORM()">Generar Paquete SCORM</button>
     </form>
 
-    <p id="progress"></p>
+    <div id="progress-bar">
+        <div id="progress-bar-fill">0%</div>
+    </div>
+    <p id="progress-text"></p>
 
     <!-- Incluir la librería JSZip para manejar archivos ZIP -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
@@ -37,50 +59,175 @@
     
     <script>
         async function generarSCORM() {
-            const progressElement = document.getElementById("progress");
+            const progressElement = document.getElementById("progress-text");
+            const progressBar = document.getElementById("progress-bar-fill");
 
-            console.log("Generando el SCORM...");
             progressElement.textContent = "Iniciando la generación del SCORM...";
+            progressBar.style.width = "0%";
+            progressBar.textContent = "0%";
 
-            // Crear un nuevo archivo ZIP para el paquete SCORM
             let zip = new JSZip();
             let scormFolder = zip.folder("scorm_package");
 
-            // Manejar el archivo de video
+            // 1. Crear el archivo index.html para el video
             let videoFile = document.getElementById("video").files[0];
             if (videoFile) {
                 scormFolder.folder("video").file(videoFile.name, videoFile);
-                console.log("Video cargado:", videoFile.name);
+                let videoHtml = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Video Explicativo</title>
+                    <meta charset="utf-8">
+                </head>
+                <body>
+                    <h1>Video Explicativo</h1>
+                    <video controls width="100%">
+                        <source src="video/${videoFile.name}" type="video/mp4">
+                        Tu navegador no soporta la reproducción de video.
+                    </video>
+                </body>
+                </html>`;
+                scormFolder.file("video.html", videoHtml);
             }
 
-            // Manejar las fichas (imágenes)
+            // 2. Crear el archivo index.html para las fichas
             let fichaFiles = document.getElementById("fichas").files;
             if (fichaFiles.length > 0) {
                 let fichaFolder = scormFolder.folder("ficha");
+                let fichaHtml = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Ficha</title>
+                    <meta charset="utf-8">
+                    <style>
+                        .carousel-container {
+                            position: relative;
+                            max-width: 100%;
+                            margin: auto;
+                            max-height: 450px;
+                            overflow: hidden;
+                        }
+                        .carousel-slide {
+                            display: none;
+                            text-align: center;
+                        }
+                        .carousel-slide img {
+                            max-width: 100%;
+                            height: auto;
+                            max-height: 450px;
+                        }
+                        .prev, .next {
+                            cursor: pointer;
+                            position: absolute;
+                            top: 50%;
+                            width: auto;
+                            margin-top: -22px;
+                            padding: 16px;
+                            color: #cccccc;
+                            font-weight: bold;
+                            font-size: 18px;
+                            transition: 0.6s ease;
+                            border-radius: 0 3px 3px 0;
+                            user-select: none;
+                        }
+                        .next {
+                            right: 0;
+                            border-radius: 3px 0 0 3px;
+                        }
+                        .prev {
+                            left: 0;
+                        }
+                        .prev.disabled, .next.disabled {
+                            visibility: hidden;
+                        }
+                        .active, .prev:hover, .next:hover {
+                            background-color: rgba(0, 0, 0, 0.3);
+                        }
+                    </style>
+                </head>
+                <body>
+                    <h1>Ficha</h1>
+                    <div class="carousel-container">`;
+
                 for (let i = 0; i < fichaFiles.length; i++) {
                     fichaFolder.file(fichaFiles[i].name, fichaFiles[i]);
-                    console.log("Ficha cargada:", fichaFiles[i].name);
+                    fichaHtml += `
+                    <div class="carousel-slide">
+                        <img src="ficha/${fichaFiles[i].name}" alt="Ficha ${i + 1}">
+                    </div>`;
                 }
+
+                fichaHtml += `
+                    <a class="prev" onclick="changeSlide(-1)">&#10094;</a>
+                    <a class="next" onclick="changeSlide(1)">&#10095;</a>
+                    </div>
+
+                    <script>
+                        let slideIndex = 0;
+                        showSlides(slideIndex);
+
+                        function changeSlide(n) {
+                            showSlides(slideIndex += n);
+                        }
+
+                        function showSlides(n) {
+                            let slides = document.getElementsByClassName("carousel-slide");
+                            let prevBtn = document.querySelector(".prev");
+                            let nextBtn = document.querySelector(".next");
+
+                            if (n >= slides.length - 1) {
+                                slideIndex = slides.length - 1;
+                                nextBtn.classList.add('disabled');
+                            } else {
+                                nextBtn.classList.remove('disabled');
+                            }
+
+                            if (n <= 0) {
+                                slideIndex = 0;
+                                prevBtn.classList.add('disabled');
+                            } else {
+                                prevBtn.classList.remove('disabled');
+                            }
+
+                            for (let i = 0; i < slides.length; i++) {
+                                slides[i].style.display = "none";
+                            }
+
+                            slides[slideIndex].style.display = "block";
+                        }
+                    </script>
+                </body>
+                </html>`;
+                scormFolder.file("ficha.html", fichaHtml);
             }
 
-            // Manejar el archivo de actividad (PDF)
+            // 3. Crear el archivo index.html para el PDF de actividad
             let pdfFile = document.getElementById("pdf").files[0];
             if (pdfFile) {
                 scormFolder.folder("actividad").file(pdfFile.name, pdfFile);
-                console.log("PDF cargado:", pdfFile.name);
+                let pdfHtml = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Actividad PDF</title>
+                    <meta charset="utf-8">
+                </head>
+                <body>
+                    <h1>Actividad PDF</h1>
+                    <iframe src="actividad/${pdfFile.name}" width="100%" height="600px"></iframe>
+                </body>
+                </html>`;
+                scormFolder.file("pdf.html", pdfHtml);
             }
 
-            // Manejar el archivo ZIP de la build de Unity
+            // 4. Procesar el archivo ZIP de la build de Unity
             let unityZipFile = document.getElementById("unityZip").files[0];
             if (unityZipFile) {
-                console.log("Cargando build de Unity desde ZIP:", unityZipFile.name);
-                progressElement.textContent = "Cargando build de Unity...";
-
-                // Leer el archivo ZIP
                 const unityZipContent = await JSZip.loadAsync(unityZipFile);
                 let buildFolder = scormFolder.folder("Build");
 
-                // Extraer los archivos del ZIP de Unity y añadirlos al ZIP SCORM
                 let totalFiles = Object.keys(unityZipContent.files).length;
                 let count = 0;
 
@@ -88,17 +235,15 @@
                     if (!file.dir) {
                         const fileData = await file.async("blob");
                         buildFolder.file(relativePath, fileData);
-                        console.log("Archivo de Unity añadido:", relativePath);
-
                         count++;
-                        progressElement.textContent = `Añadiendo archivos de Unity... (${count}/${totalFiles})`;
+                        let progressPercentage = Math.round((count / totalFiles) * 100);
+                        progressBar.style.width = `${progressPercentage}%`;
+                        progressBar.textContent = `${progressPercentage}%`;
                     }
                 }
-            } else {
-                console.log("No se cargó ningún archivo ZIP de Unity.");
             }
 
-            // Crear imsmanifest.xml (ejemplo simple)
+            // Crear imsmanifest.xml
             let manifestXML = `<?xml version="1.0" encoding="UTF-8"?>
             <manifest identifier="curso-scorm" version="1.0"
                 xmlns="http://www.imsglobal.org/xsd/imscp_v1p1">
@@ -121,33 +266,24 @@
                 </resources>
             </manifest>`;
             scormFolder.file("imsmanifest.xml", manifestXML);
-            console.log("imsmanifest.xml creado");
 
-            // Generar y descargar ZIP
+            // Generar el archivo ZIP y descargarlo
             try {
-                console.log("Iniciando la generación del ZIP...");
-                progressElement.textContent = "Generando el ZIP... Esto puede tardar unos momentos.";
                 const blob = await zip.generateAsync({ type: "blob" });
-                console.log("SCORM ZIP generado, iniciando la descarga...");
-                progressElement.textContent = "Generación completada, descargando...";
-
-                // Crear un enlace temporal para la descarga
                 const link = document.createElement("a");
                 link.href = URL.createObjectURL(blob);
                 link.download = "scorm_package.zip";
 
-                // Añadir el enlace al documento para hacer clic
                 document.body.appendChild(link);
                 link.click();
-
-                // Eliminar el enlace del documento
                 document.body.removeChild(link);
 
-                console.log("Descarga completada.");
-                progressElement.textContent = "Descarga completada.";
+                progressElement.textContent = "Paquete SCORM generado y descargado.";
+                progressBar.style.width = "100%";
+                progressBar.textContent = "100%";
             } catch (error) {
-                console.error("Error al generar o descargar el ZIP:", error);
-                progressElement.textContent = "Error al generar el ZIP.";
+                progressElement.textContent = "Error al generar el paquete SCORM.";
+                console.error(error);
             }
         }
     </script>
