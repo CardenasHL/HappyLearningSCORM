@@ -21,32 +21,23 @@
         <label for="pdf">Subir Actividad (PDF):</label><br>
         <input type="file" id="pdf" accept=".pdf"><br><br>
 
-        <!-- Subir archivos individuales de la Build de Unity -->
-        <label for="unityLoader">Subir Unity Loader (JS):</label><br>
-        <input type="file" id="unityLoader" accept=".js"><br><br>
-
-        <label for="unityData">Subir Unity Data (Unityweb):</label><br>
-        <input type="file" id="unityData" accept=".unityweb"><br><br>
-
-        <label for="unityFramework">Subir Unity Framework (JS Unityweb):</label><br>
-        <input type="file" id="unityFramework" accept=".js.unityweb"><br><br>
-
-        <label for="unityWasm">Subir Unity WASM (Wasm Unityweb):</label><br>
-        <input type="file" id="unityWasm" accept=".wasm.unityweb"><br><br>
+        <!-- Subir la build de Unity en formato ZIP -->
+        <label for="unityZip">Subir Build de Unity (ZIP):</label><br>
+        <input type="file" id="unityZip" accept=".zip"><br><br>
 
         <!-- Botón para generar el ZIP -->
         <button type="button" onclick="generarSCORM()">Generar Paquete SCORM</button>
     </form>
 
-    <!-- Incluir la librería JSZip para generar el ZIP -->
+    <!-- Incluir la librería JSZip para manejar archivos ZIP -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jszip-utils@0.1.0/dist/jszip-utils.min.js"></script>
     
-    <!-- Código JavaScript para generar el ZIP -->
     <script>
         async function generarSCORM() {
             console.log("Generando el SCORM...");
 
-            // Crear un nuevo archivo ZIP
+            // Crear un nuevo archivo ZIP para el paquete SCORM
             let zip = new JSZip();
             let scormFolder = zip.folder("scorm_package");
 
@@ -80,35 +71,25 @@
                 console.log("No se cargó el archivo PDF.");
             }
 
-            // Archivos de la Build de Unity
-            let buildFolder = scormFolder.folder("Build");
+            // Manejar el archivo ZIP de la build de Unity
+            let unityZipFile = document.getElementById("unityZip").files[0];
+            if (unityZipFile) {
+                console.log("Cargando build de Unity desde ZIP:", unityZipFile.name);
 
-            // Unity Loader
-            let unityLoader = document.getElementById("unityLoader").files[0];
-            if (unityLoader) {
-                buildFolder.file(unityLoader.name, unityLoader);
-                console.log("Unity Loader cargado:", unityLoader.name);
-            }
+                // Leer el archivo ZIP
+                const unityZipContent = await JSZip.loadAsync(unityZipFile);
+                let buildFolder = scormFolder.folder("Build");
 
-            // Unity Data
-            let unityData = document.getElementById("unityData").files[0];
-            if (unityData) {
-                buildFolder.file(unityData.name, unityData);
-                console.log("Unity Data cargado:", unityData.name);
-            }
-
-            // Unity Framework
-            let unityFramework = document.getElementById("unityFramework").files[0];
-            if (unityFramework) {
-                buildFolder.file(unityFramework.name, unityFramework);
-                console.log("Unity Framework cargado:", unityFramework.name);
-            }
-
-            // Unity Wasm
-            let unityWasm = document.getElementById("unityWasm").files[0];
-            if (unityWasm) {
-                buildFolder.file(unityWasm.name, unityWasm);
-                console.log("Unity WASM cargado:", unityWasm.name);
+                // Extraer los archivos del ZIP de Unity y añadirlos al ZIP SCORM
+                for (const [relativePath, file] of Object.entries(unityZipContent.files)) {
+                    if (!file.dir) {
+                        const fileData = await file.async("blob");
+                        buildFolder.file(relativePath, fileData);
+                        console.log("Archivo de Unity añadido:", relativePath);
+                    }
+                }
+            } else {
+                console.log("No se cargó ningún archivo ZIP de Unity.");
             }
 
             // Crear imsmanifest.xml (ejemplo simple)
@@ -137,28 +118,26 @@
             console.log("imsmanifest.xml creado");
 
             // Generar y descargar ZIP
-           // Generar y descargar ZIP
-try {
-    const blob = await zip.generateAsync({ type: "blob" });
-    console.log("SCORM ZIP generado, iniciando la descarga...");
+            try {
+                const blob = await zip.generateAsync({ type: "blob" });
+                console.log("SCORM ZIP generado, iniciando la descarga...");
 
-    // Crear un enlace temporal para la descarga
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "scorm_package.zip";
+                // Crear un enlace temporal para la descarga
+                const link = document.createElement("a");
+                link.href = URL.createObjectURL(blob);
+                link.download = "scorm_package.zip";
 
-    // Añadir el enlace al documento para hacer clic
-    document.body.appendChild(link);
-    link.click();
+                // Añadir el enlace al documento para hacer clic
+                document.body.appendChild(link);
+                link.click();
 
-    // Eliminar el enlace del documento
-    document.body.removeChild(link);
+                // Eliminar el enlace del documento
+                document.body.removeChild(link);
 
-    console.log("Descarga completada.");
-} catch (error) {
-    console.error("Error al generar o descargar el ZIP:", error);
-}
-
+                console.log("Descarga completada.");
+            } catch (error) {
+                console.error("Error al generar o descargar el ZIP:", error);
+            }
         }
     </script>
 </body>
