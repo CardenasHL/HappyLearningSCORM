@@ -6,7 +6,7 @@
     <title>Generador SCORM</title>
 </head>
 <body>
-    <h1>Generador de Paquetes HappyLearning_SCORM</h1>
+    <h1>Generador de Paquetes SCORM</h1>
 
     <form id="scormForm">
         <!-- Subir el video en formato MP4 -->
@@ -29,13 +29,18 @@
         <button type="button" onclick="generarSCORM()">Generar Paquete SCORM</button>
     </form>
 
+    <p id="progress"></p>
+
     <!-- Incluir la librería JSZip para manejar archivos ZIP -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jszip-utils@0.1.0/dist/jszip-utils.min.js"></script>
     
     <script>
         async function generarSCORM() {
+            const progressElement = document.getElementById("progress");
+
             console.log("Generando el SCORM...");
+            progressElement.textContent = "Iniciando la generación del SCORM...";
 
             // Crear un nuevo archivo ZIP para el paquete SCORM
             let zip = new JSZip();
@@ -46,8 +51,6 @@
             if (videoFile) {
                 scormFolder.folder("video").file(videoFile.name, videoFile);
                 console.log("Video cargado:", videoFile.name);
-            } else {
-                console.log("No se cargó ningún archivo de video.");
             }
 
             // Manejar las fichas (imágenes)
@@ -58,8 +61,6 @@
                     fichaFolder.file(fichaFiles[i].name, fichaFiles[i]);
                     console.log("Ficha cargada:", fichaFiles[i].name);
                 }
-            } else {
-                console.log("No se cargaron fichas.");
             }
 
             // Manejar el archivo de actividad (PDF)
@@ -67,26 +68,30 @@
             if (pdfFile) {
                 scormFolder.folder("actividad").file(pdfFile.name, pdfFile);
                 console.log("PDF cargado:", pdfFile.name);
-            } else {
-                console.log("No se cargó el archivo PDF.");
             }
 
             // Manejar el archivo ZIP de la build de Unity
             let unityZipFile = document.getElementById("unityZip").files[0];
             if (unityZipFile) {
                 console.log("Cargando build de Unity desde ZIP:", unityZipFile.name);
+                progressElement.textContent = "Cargando build de Unity...";
 
                 // Leer el archivo ZIP
                 const unityZipContent = await JSZip.loadAsync(unityZipFile);
                 let buildFolder = scormFolder.folder("Build");
 
                 // Extraer los archivos del ZIP de Unity y añadirlos al ZIP SCORM
+                let totalFiles = Object.keys(unityZipContent.files).length;
+                let count = 0;
+
                 for (const [relativePath, file] of Object.entries(unityZipContent.files)) {
                     if (!file.dir) {
                         const fileData = await file.async("blob");
-                        // Verificar la ruta del archivo antes de añadirlo al ZIP SCORM
-                        console.log("Añadiendo archivo de Unity al ZIP SCORM:", relativePath);
                         buildFolder.file(relativePath, fileData);
+                        console.log("Archivo de Unity añadido:", relativePath);
+
+                        count++;
+                        progressElement.textContent = `Añadiendo archivos de Unity... (${count}/${totalFiles})`;
                     }
                 }
             } else {
@@ -121,8 +126,10 @@
             // Generar y descargar ZIP
             try {
                 console.log("Iniciando la generación del ZIP...");
+                progressElement.textContent = "Generando el ZIP... Esto puede tardar unos momentos.";
                 const blob = await zip.generateAsync({ type: "blob" });
                 console.log("SCORM ZIP generado, iniciando la descarga...");
+                progressElement.textContent = "Generación completada, descargando...";
 
                 // Crear un enlace temporal para la descarga
                 const link = document.createElement("a");
@@ -137,8 +144,10 @@
                 document.body.removeChild(link);
 
                 console.log("Descarga completada.");
+                progressElement.textContent = "Descarga completada.";
             } catch (error) {
                 console.error("Error al generar o descargar el ZIP:", error);
+                progressElement.textContent = "Error al generar el ZIP.";
             }
         }
     </script>
