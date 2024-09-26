@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador SCORM</title>
+</head>
+<body>
+    <h1>Generador de Paquetes SCORM</h1>
+    
+    <form id="scormForm">
+        <label for="video">Subir Video (MP4):</label><br>
+        <input type="file" id="video" accept=".mp4"><br><br>
+
+        <label for="fichas">Subir Fichas (JPG):</label><br>
+        <input type="file" id="fichas" accept=".jpg" multiple><br><br>
+
+        <label for="pdf">Subir Actividad (PDF):</label><br>
+        <input type="file" id="pdf" accept=".pdf"><br><br>
+
+        <label for="build">Subir Archivos del Juego Unity:</label><br>
+        <input type="file" id="build" multiple><br><br>
+
+        <button type="button" onclick="generarSCORM()">Generar Paquete SCORM</button>
+    </form>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+    <script>
+        async function generarSCORM() {
+            // Crear un nuevo ZIP
+            let zip = new JSZip();
+            let scormFolder = zip.folder("scorm_package");
+
+            // Video
+            let videoFile = document.getElementById("video").files[0];
+            if (videoFile) {
+                scormFolder.folder("video").file(videoFile.name, videoFile);
+            }
+
+            // Fichas (imágenes JPG)
+            let fichaFiles = document.getElementById("fichas").files;
+            let fichaFolder = scormFolder.folder("ficha");
+            for (let i = 0; i < fichaFiles.length; i++) {
+                fichaFolder.file(fichaFiles[i].name, fichaFiles[i]);
+            }
+
+            // PDF (actividad)
+            let pdfFile = document.getElementById("pdf").files[0];
+            if (pdfFile) {
+                scormFolder.folder("actividad").file(pdfFile.name, pdfFile);
+            }
+
+            // Archivos de Unity (Build)
+            let buildFiles = document.getElementById("build").files;
+            let buildFolder = scormFolder.folder("Build");
+            for (let i = 0; i < buildFiles.length; i++) {
+                buildFolder.file(buildFiles[i].name, buildFiles[i]);
+            }
+
+            // Crear imsmanifest.xml (ejemplo simple)
+            let manifestXML = `<?xml version="1.0" encoding="UTF-8"?>
+            <manifest identifier="curso-scorm" version="1.0"
+                xmlns="http://www.imsglobal.org/xsd/imscp_v1p1">
+                <metadata>
+                    <schema>ADL SCORM</schema>
+                    <schemaversion>1.2</schemaversion>
+                </metadata>
+                <organizations default="org_1">
+                    <organization identifier="org_1">
+                        <title>Curso SCORM</title>
+                        <item identifier="item_1" identifierref="resource_1">
+                            <title>Curso SCORM</title>
+                        </item>
+                    </organization>
+                </organizations>
+                <resources>
+                    <resource identifier="resource_1" type="webcontent" href="index.html">
+                        <file href="index.html"/>
+                    </resource>
+                </resources>
+            </manifest>`;
+            scormFolder.file("imsmanifest.xml", manifestXML);
+
+            // Generar y descargar ZIP
+            const blob = await zip.generateAsync({ type: "blob" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "scorm_package.zip";
+            link.click();
+        }
+    </script>
+</body>
+</html>
