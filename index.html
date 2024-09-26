@@ -137,16 +137,28 @@
             console.log("imsmanifest.xml creado");
 
             // Generar y descargar ZIP
-            try {
-                const blob = await zip.generateAsync({ type: "blob" });
-                const link = document.createElement("a");
-                link.href = URL.createObjectURL(blob);
-                link.download = "scorm_package.zip";
-                link.click();
-                console.log("SCORM ZIP generado y listo para descargar.");
-            } catch (error) {
-                console.error("Error al generar el ZIP:", error);
-            }
+           // Generar y descargar ZIP
+try {
+    const blob = await zip.generateAsync({ type: "blob" });
+    console.log("SCORM ZIP generado, iniciando la descarga...");
+
+    // Crear un enlace temporal para la descarga
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "scorm_package.zip";
+
+    // Añadir el enlace al documento para hacer clic
+    document.body.appendChild(link);
+    link.click();
+
+    // Eliminar el enlace del documento
+    document.body.removeChild(link);
+
+    console.log("Descarga completada.");
+} catch (error) {
+    console.error("Error al generar o descargar el ZIP:", error);
+}
+
         }
     </script>
 </body>
