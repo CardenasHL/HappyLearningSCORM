@@ -6,7 +6,7 @@
     <title>Generador SCORM</title>
 </head>
 <body>
-    <h1>Generador de Paquetes SCORM</h1>
+    <h1>Generador de Paquetes HappyLearning_SCORM</h1>
 
     <form id="scormForm">
         <!-- Subir el video en formato MP4 -->
@@ -84,8 +84,9 @@
                 for (const [relativePath, file] of Object.entries(unityZipContent.files)) {
                     if (!file.dir) {
                         const fileData = await file.async("blob");
+                        // Verificar la ruta del archivo antes de añadirlo al ZIP SCORM
+                        console.log("Añadiendo archivo de Unity al ZIP SCORM:", relativePath);
                         buildFolder.file(relativePath, fileData);
-                        console.log("Archivo de Unity añadido:", relativePath);
                     }
                 }
             } else {
@@ -119,6 +120,7 @@
 
             // Generar y descargar ZIP
             try {
+                console.log("Iniciando la generación del ZIP...");
                 const blob = await zip.generateAsync({ type: "blob" });
                 console.log("SCORM ZIP generado, iniciando la descarga...");
 
