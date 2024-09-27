@@ -47,7 +47,7 @@
     </style>
 </head>
 <body>
-    <h1>Generador de Paquetes SCORM v1.0</h1>
+    <h1>Generador de Paquetes SCORM v2.0</h1>
 
     <form id="scormForm">
         <label for="video">Subir Video (MP4):</label><br>
@@ -186,14 +186,14 @@
                     const unityZipContent = await JSZip.loadAsync(unityZipFile);
                     let buildFolder = scormFolder.folder("Build");
 
-                    // Extraer los archivos de la carpeta "Build" del ZIP
+                    // Extraer los archivos de la carpeta "juego/Build" del ZIP
                     for (const [relativePath, file] of Object.entries(unityZipContent.files)) {
                         if (!file.dir) {
-                            if (relativePath.startsWith("Build/")) {
-                                // Solo extraer los archivos dentro de la carpeta Build
+                            if (relativePath.startsWith("juego/Build/")) {
+                                // Extraer los archivos dentro de "juego/Build"
                                 const fileData = await file.async("blob");
-                                buildFolder.file(relativePath.replace("Build/", ""), fileData);
-                            } else if (relativePath === "index.html") {
+                                buildFolder.file(relativePath.replace("juego/Build/", ""), fileData);
+                            } else if (relativePath === "juego/index.html") {
                                 // Colocar el index.html en la raíz del SCORM
                                 const fileData = await file.async("blob");
                                 scormFolder.file("index.html", fileData);
