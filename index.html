@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generador SCORM - Plantillas</title>
+    <title>Generador SCORM - Dinámico</title>
     <style>
         #progress-bar {
             width: 100%;
@@ -11,6 +11,7 @@
             border: 1px solid #ddd;
             border-radius: 5px;
             margin-top: 10px;
+            display: none; /* Oculto al principio */
         }
 
         #progress-bar-fill {
@@ -21,6 +22,28 @@
             text-align: center;
             line-height: 20px;
             color: white;
+        }
+
+        /* Spinner */
+        .loader {
+            border: 16px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 16px solid #3498db;
+            width: 120px;
+            height: 120px;
+            animation: spin 2s linear infinite;
+            display: none; /* Oculto al principio */
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #progress-text {
+            text-align: center;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -48,9 +71,12 @@
         <button type="button" onclick="generarSCORM()">Generar Paquete SCORM</button>
     </form>
 
+    <div class="loader" id="loader"></div> <!-- Spinner para mostrar durante la generación -->
+
     <div id="progress-bar">
         <div id="progress-bar-fill">0%</div>
     </div>
+
     <p id="progress-text"></p>
 
     <!-- Incluir la librería JSZip para manejar archivos ZIP -->
@@ -61,6 +87,12 @@
         async function generarSCORM() {
             const progressElement = document.getElementById("progress-text");
             const progressBar = document.getElementById("progress-bar-fill");
+            const progressContainer = document.getElementById("progress-bar");
+            const loader = document.getElementById("loader");
+
+            // Mostrar el spinner y la barra de progreso al iniciar
+            loader.style.display = "block";
+            progressContainer.style.display = "block";
 
             progressElement.textContent = "Iniciando la generación del SCORM...";
             progressBar.style.width = "0%";
@@ -69,9 +101,13 @@
             let zip = new JSZip();
             let scormFolder = zip.folder("scorm_package");
 
+            let totalSize = 0;  // Tamaño total del ZIP
+            let processedSize = 0;  // Tamaño procesado
+
             // 1. Agregar el archivo index.html para el video
             let videoFile = document.getElementById("video").files[0];
             if (videoFile) {
+                totalSize += videoFile.size; // Agregar tamaño del archivo al total
                 scormFolder.folder("video").file(videoFile.name, videoFile);
                 const videoHtml = await fetch('video_template.html').then(res => res.text());
                 scormFolder.file("video.html", videoHtml.replace("video.mp4", videoFile.name));
@@ -83,6 +119,7 @@
                 let fichaFolder = scormFolder.folder("ficha");
                 const fichaHtml = await fetch('ficha_template.html').then(res => res.text());
                 for (let i = 0; i < fichaFiles.length; i++) {
+                    totalSize += fichaFiles[i].size; // Agregar tamaño del archivo al total
                     fichaFolder.file(fichaFiles[i].name, fichaFiles[i]);
                 }
                 scormFolder.file("ficha.html", fichaHtml);
@@ -91,6 +128,7 @@
             // 3. Agregar el archivo index.html para el PDF de actividad
             let pdfFile = document.getElementById("pdf").files[0];
             if (pdfFile) {
+                totalSize += pdfFile.size; // Agregar tamaño del archivo al total
                 scormFolder.folder("actividad").file(pdfFile.name, pdfFile);
                 const pdfHtml = await fetch('pdf_template.html').then(res => res.text());
                 scormFolder.file("pdf.html", pdfHtml.replace("actividad.pdf", pdfFile.name));
@@ -99,6 +137,7 @@
             // 4. Procesar el archivo ZIP de la build de Unity
             let unityZipFile = document.getElementById("unityZip").files[0];
             if (unityZipFile) {
+                totalSize += unityZipFile.size; // Agregar tamaño del archivo al total
                 const unityZipContent = await JSZip.loadAsync(unityZipFile);
                 let buildFolder = scormFolder.folder("Build");
 
@@ -110,7 +149,8 @@
                         const fileData = await file.async("blob");
                         buildFolder.file(relativePath, fileData);
                         count++;
-                        let progressPercentage = Math.round((count / totalFiles) * 100);
+                        processedSize += fileData.size; // Actualizar tamaño procesado
+                        let progressPercentage = Math.round((processedSize / totalSize) * 100);
                         progressBar.style.width = `${progressPercentage}%`;
                         progressBar.textContent = `${progressPercentage}%`;
                     }
@@ -158,6 +198,9 @@
             } catch (error) {
                 progressElement.textContent = "Error al generar el paquete SCORM.";
                 console.error(error);
+            } finally {
+                // Ocultar spinner al final
+                loader.style.display = "none";
             }
         }
     </script>
