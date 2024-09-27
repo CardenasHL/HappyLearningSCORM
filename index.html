@@ -173,9 +173,9 @@
                         }
 
                         function showSlides(n) {
-                            let slides = document.getElementsByClassName("carousel-slide");
-                            let prevBtn = document.querySelector(".prev");
-                            let nextBtn = document.querySelector(".next");
+                            let slides = document.getElementsByClassName('carousel-slide');
+                            let prevBtn = document.querySelector('.prev');
+                            let nextBtn = document.querySelector('.next');
 
                             if (n >= slides.length - 1) {
                                 slideIndex = slides.length - 1;
@@ -192,10 +192,10 @@
                             }
 
                             for (let i = 0; i < slides.length; i++) {
-                                slides[i].style.display = "none";
+                                slides[i].style.display = 'none';
                             }
 
-                            slides[slideIndex].style.display = "block";
+                            slides[slideIndex].style.display = 'block';
                         }
                     </script>
                 </body>
