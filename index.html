@@ -65,7 +65,7 @@
         <button type="button" onclick="generarSCORM()">Generar Paquete SCORM</button>
     </form>
 
-    <div class="loader" id="loader"></div> 
+    <div class="loader" id="loader"></div> <!-- Spinner para mostrar durante la generación -->
 
     <div id="progress-bar">
         <div id="progress-bar-fill">0%</div>
@@ -186,10 +186,18 @@
                     const unityZipContent = await JSZip.loadAsync(unityZipFile);
                     let buildFolder = scormFolder.folder("Build");
 
+                    // Extraer los archivos de la carpeta "Build" del ZIP
                     for (const [relativePath, file] of Object.entries(unityZipContent.files)) {
                         if (!file.dir) {
-                            const fileData = await file.async("blob");
-                            buildFolder.file(relativePath, fileData);
+                            if (relativePath.startsWith("Build/")) {
+                                // Solo extraer los archivos dentro de la carpeta Build
+                                const fileData = await file.async("blob");
+                                buildFolder.file(relativePath.replace("Build/", ""), fileData);
+                            } else if (relativePath === "index.html") {
+                                // Colocar el index.html en la raíz del SCORM
+                                const fileData = await file.async("blob");
+                                scormFolder.file("index.html", fileData);
+                            }
                         }
                     }
                 }
