@@ -158,27 +158,60 @@
             }
 
             // Crear imsmanifest.xml
-            let manifestXML = `<?xml version="1.0" encoding="UTF-8"?>
-            <manifest identifier="curso-scorm" version="1.0"
-                xmlns="http://www.imsglobal.org/xsd/imscp_v1p1">
-                <metadata>
-                    <schema>ADL SCORM</schema>
-                    <schemaversion>1.2</schemaversion>
-                </metadata>
-                <organizations default="org_1">
-                    <organization identifier="org_1">
-                        <title>Curso SCORM</title>
-                        <item identifier="item_1" identifierref="resource_1">
-                            <title>Curso SCORM</title>
-                        </item>
-                    </organization>
-                </organizations>
-                <resources>
-                    <resource identifier="resource_1" type="webcontent" href="index.html">
-                        <file href="index.html"/>
-                    </resource>
-                </resources>
-            </manifest>`;
+// Crear imsmanifest.xml correctamente
+let manifestXML = `<?xml version="1.0" encoding="UTF-8"?>
+<manifest xmlns="http://www.imsglobal.org/xsd/imscp_v1p1" identifier="curso-completo" version="1.0">
+  <metadata>
+    <schema>ADL SCORM</schema>
+    <schemaversion>1.2</schemaversion>
+  </metadata>
+  <organizations default="org_1">
+    <organization identifier="org_1">
+      <title>Curso Completo: Video, Ficha, Juego y Actividad</title>
+      <!-- Sección del Video -->
+      <item identifier="item_video" identifierref="resource_video">
+        <title>Video Explicativo</title>
+      </item>
+      <!-- Sección de la Ficha Didáctica -->
+      <item identifier="item_ficha" identifierref="resource_ficha">
+        <title>Ficha Didáctica (Imágenes)</title>
+      </item>
+      <!-- Sección del Juego de Unity -->
+      <item identifier="item_juego" identifierref="resource_juego">
+        <title>Juego Interactivo (Unity)</title>
+      </item>
+      <!-- Sección de la Actividad PDF -->
+      <item identifier="item_pdf" identifierref="resource_pdf">
+        <title>Actividad PDF para Descargar</title>
+      </item>
+    </organization>
+  </organizations>
+  <resources>
+    <!-- Recurso: Video -->
+    <resource identifier="resource_video" type="webcontent" href="video.html">
+      <file href="video/video.mp4"/>
+      <file href="video.html"/>
+    </resource>
+    <!-- Recurso: Ficha Didáctica (Imágenes JPG) -->
+    <resource identifier="resource_ficha" type="webcontent" href="ficha.html">
+      ${Array.from(document.getElementById('fichas').files).map((file, index) => `<file href="ficha/${file.name}"/>`).join('')}
+      <file href="ficha.html"/>
+    </resource>
+    <!-- Recurso: Juego Unity WebGL -->
+    <resource identifier="resource_juego" type="webcontent" href="index.html">
+      <file href="index.html"/>
+      <file href="Build/BuildESP_SCORM.loader.js"/>
+      <file href="Build/BuildESP_SCORM.data.unityweb"/>
+      <file href="Build/BuildESP_SCORM.framework.js.unityweb"/>
+      <file href="Build/BuildESP_SCORM.wasm.unityweb"/>
+    </resource>
+    <!-- Recurso: Actividad PDF -->
+    <resource identifier="resource_pdf" type="webcontent" href="actividad/actividad.pdf">
+      <file href="actividad/actividad.pdf"/>
+    </resource>
+  </resources>
+</manifest>`;
+
             scormFolder.file("imsmanifest.xml", manifestXML);
 
             // Generar el archivo ZIP y descargarlo
