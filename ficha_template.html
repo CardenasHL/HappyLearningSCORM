@@ -67,34 +67,38 @@
 
     <script>
         let slideIndex = 0;
-        let images = [];  // Almacenará los nombres de las imágenes
 
-        // Generar dinámicamente las imágenes del carrusel
-        function generateCarousel(images) {
-            let container = document.getElementById('carouselContainer');
+        // Cargar dinámicamente las imágenes presentes en la carpeta "ficha"
+        function loadImagesFromFolder() {
+            let imageContainer = document.getElementById('carouselContainer');
 
-            images.forEach((image, index) => {
-                let slideDiv = document.createElement('div');
-                slideDiv.classList.add('carousel-slide');
+            fetch('ficha/')
+                .then(response => response.text())
+                .then(text => {
+                    let parser = new DOMParser();
+                    let doc = parser.parseFromString(text, 'text/html');
+                    let images = Array.from(doc.querySelectorAll('a')).map(a => a.href).filter(href => href.endsWith('.jpg') || href.endsWith('.jpeg') || href.endsWith('.png'));
 
-                let imgElement = document.createElement('img');
-                imgElement.src = `ficha/${image}`;  // Ruta de la imagen
-                imgElement.alt = `Ficha ${index + 1}`;
+                    if (images.length > 0) {
+                        images.forEach((imgSrc, index) => {
+                            let slideDiv = document.createElement('div');
+                            slideDiv.classList.add('carousel-slide');
 
-                slideDiv.appendChild(imgElement);
-                container.appendChild(slideDiv);
-            });
+                            let imgElement = document.createElement('img');
+                            imgElement.src = imgSrc;  // Ruta de la imagen
+                            imgElement.alt = `Ficha ${index + 1}`;
 
-            showSlides(slideIndex);  // Mostrar la primera imagen
-        }
+                            slideDiv.appendChild(imgElement);
+                            imageContainer.insertBefore(slideDiv, imageContainer.querySelector('.next')); // Insertar antes del botón "next"
+                        });
 
-        // Inicializa el carrusel con los nombres de las imágenes que se encuentran en la carpeta "ficha"
-        function initCarousel() {
-            // Aquí añadimos los nombres de las imágenes que se suben dinámicamente.
-            // IMPORTANTE: Estos nombres deben coincidir con los que realmente están en la carpeta "ficha".
-            images = ["ficha1.jpg", "ficha2.jpg", "ficha3.jpg", "ficha4.jpg"];  // Ejemplo de 4 fichas
-
-            generateCarousel(images);
+                        // Mostrar la primera imagen
+                        showSlides(slideIndex);
+                    }
+                })
+                .catch(error => {
+                    console.error("Error al cargar las imágenes:", error);
+                });
         }
 
         // Función para cambiar la diapositiva
@@ -130,7 +134,7 @@
         }
 
         // Inicializar el carrusel cuando se carga la página
-        window.onload = initCarousel;
+        window.onload = loadImagesFromFolder;
     </script>
 </body>
 </html>
