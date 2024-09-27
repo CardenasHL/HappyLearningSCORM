@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generador SCORM </title>
+    <title>Generador SCORM - Dinámico y Optimizado</title>
     <style>
         #progress-bar {
             width: 100%;
@@ -65,7 +65,7 @@
         <button type="button" onclick="generarSCORM()">Generar Paquete SCORM</button>
     </form>
 
-    <div class="loader" id="loader"></div> <!-- Spinner para mostrar durante la generación -->
+    <div class="loader" id="loader"></div>
 
     <div id="progress-bar">
         <div id="progress-bar-fill">0%</div>
@@ -75,7 +75,7 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jszip-utils@0.1.0/dist/jszip-utils.min.js"></script>
-    
+
     <script>
         async function generarSCORM() {
             const progressElement = document.getElementById("progress-text");
@@ -98,7 +98,7 @@
             let pdfFile = document.getElementById("pdf").files[0];
             let unityZipFile = document.getElementById("unityZip").files[0];
 
-            totalSize = calcularTamañoTotal(videoFile, fichaFiles, pdfFile, unityZipFile); 
+            totalSize = calcularTamañoTotal(videoFile, fichaFiles, pdfFile, unityZipFile);
 
             let steps = [
                 () => agregarVideo(scormFolder, videoFile),
