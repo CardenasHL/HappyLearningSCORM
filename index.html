@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generador SCORM - Dinámico</title>
+    <title>Generador SCORM - Dinámico y Optimizado</title>
     <style>
         #progress-bar {
             width: 100%;
@@ -104,118 +104,156 @@
             let totalSize = 0;  // Tamaño total del ZIP
             let processedSize = 0;  // Tamaño procesado
 
-            // 1. Agregar el archivo index.html para el video
+            // Procesar y agregar recursos al SCORM
             let videoFile = document.getElementById("video").files[0];
-            if (videoFile) {
-                totalSize += videoFile.size; // Agregar tamaño del archivo al total
-                scormFolder.folder("video").file(videoFile.name, videoFile);
-                const videoHtml = await fetch('video_template.html').then(res => res.text());
-                scormFolder.file("video.html", videoHtml.replace("video.mp4", videoFile.name));
-            }
-
-            // 2. Agregar el archivo index.html para las fichas
             let fichaFiles = document.getElementById("fichas").files;
-            if (fichaFiles.length > 0) {
-                let fichaFolder = scormFolder.folder("ficha");
-                const fichaHtml = await fetch('ficha_template.html').then(res => res.text());
-                for (let i = 0; i < fichaFiles.length; i++) {
-                    totalSize += fichaFiles[i].size; // Agregar tamaño del archivo al total
-                    fichaFolder.file(fichaFiles[i].name, fichaFiles[i]);
-                }
-                scormFolder.file("ficha.html", fichaHtml);
-            }
-
-            // 3. Agregar el archivo index.html para el PDF de actividad
             let pdfFile = document.getElementById("pdf").files[0];
-            if (pdfFile) {
-                totalSize += pdfFile.size; // Agregar tamaño del archivo al total
-                scormFolder.folder("actividad").file(pdfFile.name, pdfFile);
-                const pdfHtml = await fetch('pdf_template.html').then(res => res.text());
-                scormFolder.file("pdf.html", pdfHtml.replace("actividad.pdf", pdfFile.name));
+            let unityZipFile = document.getElementById("unityZip").files[0];
+
+            totalSize = calcularTamañoTotal(videoFile, fichaFiles, pdfFile, unityZipFile); // Función para calcular el tamaño total
+
+            let steps = [
+                () => agregarVideo(scormFolder, videoFile),
+                () => agregarFichas(scormFolder, fichaFiles),
+                () => agregarPDF(scormFolder, pdfFile),
+                () => procesarUnityZip(scormFolder, unityZipFile),
+                () => generarManifest(scormFolder, fichaFiles),
+                () => generarZIP(zip)
+            ];
+
+            // Ejecutar los pasos de forma secuencial y actualizar el progreso
+            for (let i = 0; i < steps.length; i++) {
+                await steps[i]();
+                actualizarProgreso(i, steps.length);
             }
 
-            // 4. Procesar el archivo ZIP de la build de Unity
-            let unityZipFile = document.getElementById("unityZip").files[0];
-            if (unityZipFile) {
-                totalSize += unityZipFile.size; // Agregar tamaño del archivo al total
-                const unityZipContent = await JSZip.loadAsync(unityZipFile);
-                let buildFolder = scormFolder.folder("Build");
+            // Actualizar el progreso al 100% y ocultar el spinner
+            finalizarProceso();
 
-                let totalFiles = Object.keys(unityZipContent.files).length;
-                let count = 0;
+            // Función para calcular el tamaño total de los archivos
+            function calcularTamañoTotal(videoFile, fichaFiles, pdfFile, unityZipFile) {
+                let size = 0;
+                if (videoFile) size += videoFile.size;
+                for (let i = 0; i < fichaFiles.length; i++) {
+                    size += fichaFiles[i].size;
+                }
+                if (pdfFile) size += pdfFile.size;
+                if (unityZipFile) size += unityZipFile.size;
+                return size;
+            }
 
-                for (const [relativePath, file] of Object.entries(unityZipContent.files)) {
-                    if (!file.dir) {
-                        const fileData = await file.async("blob");
-                        buildFolder.file(relativePath, fileData);
-                        count++;
-                        processedSize += fileData.size; // Actualizar tamaño procesado
-                        let progressPercentage = Math.round((processedSize / totalSize) * 100);
-                        progressBar.style.width = `${progressPercentage}%`;
-                        progressBar.textContent = `${progressPercentage}%`;
+            // Función para actualizar el progreso
+            function actualizarProgreso(pasoActual, totalPasos) {
+                let progressPercentage = Math.round(((pasoActual + 1) / totalPasos) * 100);
+                progressBar.style.width = `${progressPercentage}%`;
+                progressBar.textContent = `${progressPercentage}%`;
+                progressElement.textContent = `Progreso: ${progressPercentage}%`;
+            }
+
+            // Función para finalizar el proceso
+            function finalizarProceso() {
+                loader.style.display = "none";
+                progressBar.style.width = "100%";
+                progressBar.textContent = "100%";
+                progressElement.textContent = "Paquete SCORM generado y descargado.";
+            }
+
+            // Agregar video al SCORM
+            async function agregarVideo(scormFolder, videoFile) {
+                if (videoFile) {
+                    scormFolder.folder("video").file(videoFile.name, videoFile);
+                    const videoHtml = await fetch('video_template.html').then(res => res.text());
+                    scormFolder.file("video.html", videoHtml.replace("video.mp4", videoFile.name));
+                }
+            }
+
+            // Agregar fichas al SCORM
+            async function agregarFichas(scormFolder, fichaFiles) {
+                if (fichaFiles.length > 0) {
+                    let fichaFolder = scormFolder.folder("ficha");
+                    const fichaHtml = await fetch('ficha_template.html').then(res => res.text());
+                    for (let i = 0; i < fichaFiles.length; i++) {
+                        fichaFolder.file(fichaFiles[i].name, fichaFiles[i]);
+                    }
+                    scormFolder.file("ficha.html", fichaHtml);
+                }
+            }
+
+            // Agregar PDF de actividad al SCORM
+            async function agregarPDF(scormFolder, pdfFile) {
+                if (pdfFile) {
+                    scormFolder.folder("actividad").file(pdfFile.name, pdfFile);
+                    const pdfHtml = await fetch('pdf_template.html').then(res => res.text());
+                    scormFolder.file("pdf.html", pdfHtml.replace("actividad.pdf", pdfFile.name));
+                }
+            }
+
+            // Procesar archivo ZIP de Unity
+            async function procesarUnityZip(scormFolder, unityZipFile) {
+                if (unityZipFile) {
+                    const unityZipContent = await JSZip.loadAsync(unityZipFile);
+                    let buildFolder = scormFolder.folder("Build");
+
+                    for (const [relativePath, file] of Object.entries(unityZipContent.files)) {
+                        if (!file.dir) {
+                            const fileData = await file.async("blob");
+                            buildFolder.file(relativePath, fileData);
+                        }
                     }
                 }
             }
 
-            // Crear imsmanifest.xml
-// Crear imsmanifest.xml correctamente
-let manifestXML = `<?xml version="1.0" encoding="UTF-8"?>
-<manifest xmlns="http://www.imsglobal.org/xsd/imscp_v1p1" identifier="curso-completo" version="1.0">
-  <metadata>
-    <schema>ADL SCORM</schema>
-    <schemaversion>1.2</schemaversion>
-  </metadata>
-  <organizations default="org_1">
-    <organization identifier="org_1">
-      <title>Curso Completo: Video, Ficha, Juego y Actividad</title>
-      <!-- Sección del Video -->
-      <item identifier="item_video" identifierref="resource_video">
-        <title>Video Explicativo</title>
-      </item>
-      <!-- Sección de la Ficha Didáctica -->
-      <item identifier="item_ficha" identifierref="resource_ficha">
-        <title>Ficha Didáctica (Imágenes)</title>
-      </item>
-      <!-- Sección del Juego de Unity -->
-      <item identifier="item_juego" identifierref="resource_juego">
-        <title>Juego Interactivo (Unity)</title>
-      </item>
-      <!-- Sección de la Actividad PDF -->
-      <item identifier="item_pdf" identifierref="resource_pdf">
-        <title>Actividad PDF para Descargar</title>
-      </item>
-    </organization>
-  </organizations>
-  <resources>
-    <!-- Recurso: Video -->
-    <resource identifier="resource_video" type="webcontent" href="video.html">
-      <file href="video/video.mp4"/>
-      <file href="video.html"/>
-    </resource>
-    <!-- Recurso: Ficha Didáctica (Imágenes JPG) -->
-    <resource identifier="resource_ficha" type="webcontent" href="ficha.html">
-      ${Array.from(document.getElementById('fichas').files).map((file, index) => `<file href="ficha/${file.name}"/>`).join('')}
-      <file href="ficha.html"/>
-    </resource>
-    <!-- Recurso: Juego Unity WebGL -->
-    <resource identifier="resource_juego" type="webcontent" href="index.html">
-      <file href="index.html"/>
-      <file href="Build/BuildESP_SCORM.loader.js"/>
-      <file href="Build/BuildESP_SCORM.data.unityweb"/>
-      <file href="Build/BuildESP_SCORM.framework.js.unityweb"/>
-      <file href="Build/BuildESP_SCORM.wasm.unityweb"/>
-    </resource>
-    <!-- Recurso: Actividad PDF -->
-    <resource identifier="resource_pdf" type="webcontent" href="actividad/actividad.pdf">
-      <file href="actividad/actividad.pdf"/>
-    </resource>
-  </resources>
-</manifest>`;
+            // Generar el manifest
+            function generarManifest(scormFolder, fichaFiles) {
+                let manifestXML = `<?xml version="1.0" encoding="UTF-8"?>
+                <manifest xmlns="http://www.imsglobal.org/xsd/imscp_v1p1" identifier="curso-completo" version="1.0">
+                    <metadata>
+                        <schema>ADL SCORM</schema>
+                        <schemaversion>1.2</schemaversion>
+                    </metadata>
+                    <organizations default="org_1">
+                        <organization identifier="org_1">
+                            <title>Curso Completo: Video, Ficha, Juego y Actividad</title>
+                            <item identifier="item_video" identifierref="resource_video">
+                                <title>Video Explicativo</title>
+                            </item>
+                            <item identifier="item_ficha" identifierref="resource_ficha">
+                                <title>Ficha Didáctica (Imágenes)</title>
+                            </item>
+                            <item identifier="item_juego" identifierref="resource_juego">
+                                <title>Juego Interactivo (Unity)</title>
+                            </item>
+                            <item identifier="item_pdf" identifierref="resource_pdf">
+                                <title>Actividad PDF para Descargar</title>
+                            </item>
+                        </organization>
+                    </organizations>
+                    <resources>
+                        <resource identifier="resource_video" type="webcontent" href="video.html">
+                            <file href="video/video.mp4"/>
+                            <file href="video.html"/>
+                        </resource>
+                        <resource identifier="resource_ficha" type="webcontent" href="ficha.html">
+                            ${Array.from(fichaFiles).map((file) => `<file href="ficha/${file.name}"/>`).join('')}
+                            <file href="ficha.html"/>
+                        </resource>
+                        <resource identifier="resource_juego" type="webcontent" href="index.html">
+                            <file href="index.html"/>
+                            <file href="Build/BuildESP_SCORM.loader.js"/>
+                            <file href="Build/BuildESP_SCORM.data.unityweb"/>
+                            <file href="Build/BuildESP_SCORM.framework.js.unityweb"/>
+                            <file href="Build/BuildESP_SCORM.wasm.unityweb"/>
+                        </resource>
+                        <resource identifier="resource_pdf" type="webcontent" href="actividad/actividad.pdf">
+                            <file href="actividad/actividad.pdf"/>
+                        </resource>
+                    </resources>
+                </manifest>`;
+                scormFolder.file("imsmanifest.xml", manifestXML);
+            }
 
-            scormFolder.file("imsmanifest.xml", manifestXML);
-
-            // Generar el archivo ZIP y descargarlo
-            try {
+            // Generar el ZIP y descargar
+            async function generarZIP(zip) {
                 const blob = await zip.generateAsync({ type: "blob" });
                 const link = document.createElement("a");
                 link.href = URL.createObjectURL(blob);
@@ -224,16 +262,6 @@ let manifestXML = `<?xml version="1.0" encoding="UTF-8"?>
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
-
-                progressElement.textContent = "Paquete SCORM generado y descargado.";
-                progressBar.style.width = "100%";
-                progressBar.textContent = "100%";
-            } catch (error) {
-                progressElement.textContent = "Error al generar el paquete SCORM.";
-                console.error(error);
-            } finally {
-                // Ocultar spinner al final
-                loader.style.display = "none";
             }
         }
     </script>
