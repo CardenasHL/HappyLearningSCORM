@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ficha</title>
+    <meta charset="utf-8">
+    <style>
+        .carousel-container {
+            position: relative;
+            max-width: 100%;
+            margin: auto;
+            max-height: 450px;
+            overflow: hidden;
+        }
+        .carousel-slide {
+            display: none;
+            text-align: center;
+        }
+        .carousel-slide img {
+            max-width: 100%;
+            height: auto;
+            max-height: 450px;
+        }
+        .prev, .next {
+            cursor: pointer;
+            position: absolute;
+            top: 50%;
+            width: auto;
+            margin-top: -22px;
+            padding: 16px;
+            color: #cccccc;
+            font-weight: bold;
+            font-size: 18px;
+            transition: 0.6s ease;
+            border-radius: 0 3px 3px 0;
+            user-select: none;
+        }
+        .next {
+            right: 0;
+            border-radius: 3px 0 0 3px;
+        }
+        .prev {
+            left: 0;
+        }
+        .prev.disabled, .next.disabled {
+            visibility: hidden;
+        }
+        .active, .prev:hover, .next:hover {
+            background-color: rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <h1>Ficha</h1>
+    <div class="carousel-container">
+        <!-- Slides generated here dynamically -->
+    </div>
+
+    <a class="prev" onclick="changeSlide(-1)">&#10094;</a>
+    <a class="next" onclick="changeSlide(1)">&#10095;</a>
+
+    <script>
+        let slideIndex = 0;
+        showSlides(slideIndex);
+
+        function changeSlide(n) {
+            showSlides(slideIndex += n);
+        }
+
+        function showSlides(n) {
+            let slides = document.getElementsByClassName('carousel-slide');
+            let prevBtn = document.querySelector('.prev');
+            let nextBtn = document.querySelector('.next');
+
+            if (n >= slides.length - 1) {
+                slideIndex = slides.length - 1;
+                nextBtn.classList.add('disabled');
+            } else {
+                nextBtn.classList.remove('disabled');
+            }
+
+            if (n <= 0) {
+                slideIndex = 0;
+                prevBtn.classList.add('disabled');
+            } else {
+                prevBtn.classList.remove('disabled');
+            }
+
+            for (let i = 0; i < slides.length; i++) {
+                slides[i].style.display = 'none';
+            }
+
+            slides[slideIndex].style.display = 'block';
+        }
+    </script>
+</body>
+</html>
