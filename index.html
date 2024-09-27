@@ -11,7 +11,7 @@
             border: 1px solid #ddd;
             border-radius: 5px;
             margin-top: 10px;
-            display: none; /* Oculto al principio */
+            display: none;
         }
 
         #progress-bar-fill {
@@ -24,7 +24,6 @@
             color: white;
         }
 
-        /* Spinner */
         .loader {
             border: 16px solid #f3f3f3;
             border-radius: 50%;
@@ -32,7 +31,7 @@
             width: 120px;
             height: 120px;
             animation: spin 2s linear infinite;
-            display: none; /* Oculto al principio */
+            display: none;
             margin: 20px auto;
         }
 
@@ -51,27 +50,22 @@
     <h1>Generador de Paquetes SCORM</h1>
 
     <form id="scormForm">
-        <!-- Subir el video en formato MP4 -->
         <label for="video">Subir Video (MP4):</label><br>
         <input type="file" id="video" accept=".mp4"><br><br>
 
-        <!-- Subir imágenes de las fichas en formato JPG -->
         <label for="fichas">Subir Fichas (JPG):</label><br>
         <input type="file" id="fichas" accept=".jpg" multiple><br><br>
 
-        <!-- Subir la actividad en formato PDF -->
         <label for="pdf">Subir Actividad (PDF):</label><br>
         <input type="file" id="pdf" accept=".pdf"><br><br>
 
-        <!-- Subir la build de Unity en formato ZIP -->
         <label for="unityZip">Subir Build de Unity (ZIP):</label><br>
         <input type="file" id="unityZip" accept=".zip"><br><br>
 
-        <!-- Botón para generar el ZIP -->
         <button type="button" onclick="generarSCORM()">Generar Paquete SCORM</button>
     </form>
 
-    <div class="loader" id="loader"></div> <!-- Spinner para mostrar durante la generación -->
+    <div class="loader" id="loader"></div> 
 
     <div id="progress-bar">
         <div id="progress-bar-fill">0%</div>
@@ -79,7 +73,6 @@
 
     <p id="progress-text"></p>
 
-    <!-- Incluir la librería JSZip para manejar archivos ZIP -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jszip-utils@0.1.0/dist/jszip-utils.min.js"></script>
     
@@ -90,7 +83,6 @@
             const progressContainer = document.getElementById("progress-bar");
             const loader = document.getElementById("loader");
 
-            // Mostrar el spinner y la barra de progreso al iniciar
             loader.style.display = "block";
             progressContainer.style.display = "block";
 
@@ -101,16 +93,12 @@
             let zip = new JSZip();
             let scormFolder = zip.folder("scorm_package");
 
-            let totalSize = 0;  // Tamaño total del ZIP
-            let processedSize = 0;  // Tamaño procesado
-
-            // Procesar y agregar recursos al SCORM
             let videoFile = document.getElementById("video").files[0];
             let fichaFiles = document.getElementById("fichas").files;
             let pdfFile = document.getElementById("pdf").files[0];
             let unityZipFile = document.getElementById("unityZip").files[0];
 
-            totalSize = calcularTamañoTotal(videoFile, fichaFiles, pdfFile, unityZipFile); // Función para calcular el tamaño total
+            totalSize = calcularTamañoTotal(videoFile, fichaFiles, pdfFile, unityZipFile); 
 
             let steps = [
                 () => agregarVideo(scormFolder, videoFile),
@@ -121,16 +109,14 @@
                 () => generarZIP(zip)
             ];
 
-            // Ejecutar los pasos de forma secuencial y actualizar el progreso
             for (let i = 0; i < steps.length; i++) {
+                progressElement.textContent = `Paso ${i + 1}: ${obtenerTextoPaso(i)}`;
                 await steps[i]();
                 actualizarProgreso(i, steps.length);
             }
 
-            // Actualizar el progreso al 100% y ocultar el spinner
             finalizarProceso();
 
-            // Función para calcular el tamaño total de los archivos
             function calcularTamañoTotal(videoFile, fichaFiles, pdfFile, unityZipFile) {
                 let size = 0;
                 if (videoFile) size += videoFile.size;
@@ -142,15 +128,25 @@
                 return size;
             }
 
-            // Función para actualizar el progreso
+            function obtenerTextoPaso(paso) {
+                switch (paso) {
+                    case 0: return "Procesando el video...";
+                    case 1: return "Agregando las fichas...";
+                    case 2: return "Añadiendo la actividad PDF...";
+                    case 3: return "Procesando la build de Unity...";
+                    case 4: return "Generando el manifest...";
+                    case 5: return "Generando y descargando el ZIP...";
+                    default: return "";
+                }
+            }
+
             function actualizarProgreso(pasoActual, totalPasos) {
                 let progressPercentage = Math.round(((pasoActual + 1) / totalPasos) * 100);
                 progressBar.style.width = `${progressPercentage}%`;
                 progressBar.textContent = `${progressPercentage}%`;
-                progressElement.textContent = `Progreso: ${progressPercentage}%`;
+                progressElement.textContent += ` - ${progressPercentage}% completado`;
             }
 
-            // Función para finalizar el proceso
             function finalizarProceso() {
                 loader.style.display = "none";
                 progressBar.style.width = "100%";
@@ -158,7 +154,6 @@
                 progressElement.textContent = "Paquete SCORM generado y descargado.";
             }
 
-            // Agregar video al SCORM
             async function agregarVideo(scormFolder, videoFile) {
                 if (videoFile) {
                     scormFolder.folder("video").file(videoFile.name, videoFile);
@@ -167,7 +162,6 @@
                 }
             }
 
-            // Agregar fichas al SCORM
             async function agregarFichas(scormFolder, fichaFiles) {
                 if (fichaFiles.length > 0) {
                     let fichaFolder = scormFolder.folder("ficha");
@@ -179,7 +173,6 @@
                 }
             }
 
-            // Agregar PDF de actividad al SCORM
             async function agregarPDF(scormFolder, pdfFile) {
                 if (pdfFile) {
                     scormFolder.folder("actividad").file(pdfFile.name, pdfFile);
@@ -188,7 +181,6 @@
                 }
             }
 
-            // Procesar archivo ZIP de Unity
             async function procesarUnityZip(scormFolder, unityZipFile) {
                 if (unityZipFile) {
                     const unityZipContent = await JSZip.loadAsync(unityZipFile);
@@ -203,7 +195,6 @@
                 }
             }
 
-            // Generar el manifest
             function generarManifest(scormFolder, fichaFiles) {
                 let manifestXML = `<?xml version="1.0" encoding="UTF-8"?>
                 <manifest xmlns="http://www.imsglobal.org/xsd/imscp_v1p1" identifier="curso-completo" version="1.0">
@@ -252,7 +243,6 @@
                 scormFolder.file("imsmanifest.xml", manifestXML);
             }
 
-            // Generar el ZIP y descargar
             async function generarZIP(zip) {
                 const blob = await zip.generateAsync({ type: "blob" });
                 const link = document.createElement("a");
