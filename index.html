@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generador SCORM - v3</title> <!-- Cambié el título para identificar la nueva versión -->
+    <title>Generador SCORM - Plantillas</title>
     <style>
         #progress-bar {
             width: 100%;
@@ -25,7 +25,7 @@
     </style>
 </head>
 <body>
-    <h1>Generador SCORM - v3</h1>
+    <h1>Generador de Paquetes SCORM</h1>
 
     <form id="scormForm">
         <!-- Subir el video en formato MP4 -->
@@ -58,7 +58,6 @@
     <script src="https://cdn.jsdelivr.net/npm/jszip-utils@0.1.0/dist/jszip-utils.min.js"></script>
     
     <script>
-        // Corregir la función para evitar "generarSCORM is not defined"
         async function generarSCORM() {
             const progressElement = document.getElementById("progress-text");
             const progressBar = document.getElementById("progress-bar-fill");
@@ -70,157 +69,31 @@
             let zip = new JSZip();
             let scormFolder = zip.folder("scorm_package");
 
-            // 1. Crear el archivo index.html para el video
+            // 1. Agregar el archivo index.html para el video
             let videoFile = document.getElementById("video").files[0];
             if (videoFile) {
                 scormFolder.folder("video").file(videoFile.name, videoFile);
-                let videoHtml = `
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <title>Video Explicativo</title>
-                    <meta charset="utf-8">
-                </head>
-                <body>
-                    <h1>Video Explicativo</h1>
-                    <video controls width="100%">
-                        <source src="video/${videoFile.name}" type="video/mp4">
-                        Tu navegador no soporta la reproducción de video.
-                    </video>
-                </body>
-                </html>`;
-                scormFolder.file("video.html", videoHtml);
+                const videoHtml = await fetch('video_template.html').then(res => res.text());
+                scormFolder.file("video.html", videoHtml.replace("video.mp4", videoFile.name));
             }
 
-            // 2. Crear el archivo index.html para las fichas
+            // 2. Agregar el archivo index.html para las fichas
             let fichaFiles = document.getElementById("fichas").files;
             if (fichaFiles.length > 0) {
                 let fichaFolder = scormFolder.folder("ficha");
-                let fichaHtml = `
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <title>Ficha</title>
-                    <meta charset="utf-8">
-                    <style>
-                        .carousel-container {
-                            position: relative;
-                            max-width: 100%;
-                            margin: auto;
-                            max-height: 450px;
-                            overflow: hidden;
-                        }
-                        .carousel-slide {
-                            display: none;
-                            text-align: center;
-                        }
-                        .carousel-slide img {
-                            max-width: 100%;
-                            height: auto;
-                            max-height: 450px;
-                        }
-                        .prev, .next {
-                            cursor: pointer;
-                            position: absolute;
-                            top: 50%;
-                            width: auto;
-                            margin-top: -22px;
-                            padding: 16px;
-                            color: #cccccc;
-                            font-weight: bold;
-                            font-size: 18px;
-                            transition: 0.6s ease;
-                            border-radius: 0 3px 3px 0;
-                            user-select: none;
-                        }
-                        .next {
-                            right: 0;
-                            border-radius: 3px 0 0 3px;
-                        }
-                        .prev {
-                            left: 0;
-                        }
-                        .prev.disabled, .next.disabled {
-                            visibility: hidden;
-                        }
-                        .active, .prev:hover, .next:hover {
-                            background-color: rgba(0, 0, 0, 0.3);
-                        }
-                    </style>
-                </head>
-                <body>
-                    <h1>Ficha</h1>
-                    <div class="carousel-container">`;
-
+                const fichaHtml = await fetch('ficha_template.html').then(res => res.text());
                 for (let i = 0; i < fichaFiles.length; i++) {
                     fichaFolder.file(fichaFiles[i].name, fichaFiles[i]);
-                    fichaHtml += `
-                    <div class="carousel-slide">
-                        <img src="ficha/${fichaFiles[i].name}" alt="Ficha ${i + 1}">
-                    </div>`;
                 }
-
-                fichaHtml += `
-                    <a class="prev" onclick="changeSlide(-1)">&#10094;</a>
-                    <a class="next" onclick="changeSlide(1)">&#10095;</a>
-                    </div>
-
-                    <script>
-                        let slideIndex = 0;
-                        showSlides(slideIndex);
-
-                        function changeSlide(n) {
-                            showSlides(slideIndex += n);
-                        }
-
-                        function showSlides(n) {
-                            let slides = document.getElementsByClassName('carousel-slide');
-                            let prevBtn = document.querySelector('.prev');
-                            let nextBtn = document.querySelector('.next');
-
-                            if (n >= slides.length - 1) {
-                                slideIndex = slides.length - 1;
-                                nextBtn.classList.add('disabled');
-                            } else {
-                                nextBtn.classList.remove('disabled');
-                            }
-
-                            if (n <= 0) {
-                                slideIndex = 0;
-                                prevBtn.classList.add('disabled');
-                            } else {
-                                prevBtn.classList.remove('disabled');
-                            }
-
-                            for (let i = 0; i < slides.length; i++) {
-                                slides[i].style.display = 'none';
-                            }
-
-                            slides[slideIndex].style.display = 'block';
-                        }
-                    </script>
-                </body>
-                </html>`;
                 scormFolder.file("ficha.html", fichaHtml);
             }
 
-            // 3. Crear el archivo index.html para el PDF de actividad
+            // 3. Agregar el archivo index.html para el PDF de actividad
             let pdfFile = document.getElementById("pdf").files[0];
             if (pdfFile) {
                 scormFolder.folder("actividad").file(pdfFile.name, pdfFile);
-                let pdfHtml = `
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <title>Actividad PDF</title>
-                    <meta charset="utf-8">
-                </head>
-                <body>
-                    <h1>Actividad PDF</h1>
-                    <iframe src="actividad/${pdfFile.name}" width="100%" height="600px"></iframe>
-                </body>
-                </html>`;
-                scormFolder.file("pdf.html", pdfHtml);
+                const pdfHtml = await fetch('pdf_template.html').then(res => res.text());
+                scormFolder.file("pdf.html", pdfHtml.replace("actividad.pdf", pdfFile.name));
             }
 
             // 4. Procesar el archivo ZIP de la build de Unity
