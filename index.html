@@ -105,7 +105,7 @@
                 () => agregarFichas(scormFolder, fichaFiles),
                 () => agregarPDF(scormFolder, pdfFile),
                 () => procesarUnityZip(scormFolder, unityZipFile),
-                () => generarManifest(scormFolder, fichaFiles),
+                () => generarManifest(scormFolder, fichaFiles, videoFile, pdfFile),
                 () => generarZIP(zip)
             ];
 
@@ -166,10 +166,12 @@
                 if (fichaFiles.length > 0) {
                     let fichaFolder = scormFolder.folder("ficha");
                     const fichaHtml = await fetch('ficha_template.html').then(res => res.text());
+                    let fichaContent = fichaHtml;
                     for (let i = 0; i < fichaFiles.length; i++) {
                         fichaFolder.file(fichaFiles[i].name, fichaFiles[i]);
+                        fichaContent = fichaContent.replace(`ficha${i+1}.jpg`, fichaFiles[i].name); // Adaptar los nombres
                     }
-                    scormFolder.file("ficha.html", fichaHtml);
+                    scormFolder.file("ficha.html", fichaContent);
                 }
             }
 
@@ -186,15 +188,12 @@
                     const unityZipContent = await JSZip.loadAsync(unityZipFile);
                     let buildFolder = scormFolder.folder("Build");
 
-                    // Extraer los archivos de la carpeta "juego/Build" del ZIP
                     for (const [relativePath, file] of Object.entries(unityZipContent.files)) {
                         if (!file.dir) {
                             if (relativePath.startsWith("juego/Build/")) {
-                                // Extraer los archivos dentro de "juego/Build"
                                 const fileData = await file.async("blob");
                                 buildFolder.file(relativePath.replace("juego/Build/", ""), fileData);
                             } else if (relativePath === "juego/index.html") {
-                                // Colocar el index.html en la raíz del SCORM
                                 const fileData = await file.async("blob");
                                 scormFolder.file("index.html", fileData);
                             }
@@ -203,7 +202,7 @@
                 }
             }
 
-            function generarManifest(scormFolder, fichaFiles) {
+            function generarManifest(scormFolder, fichaFiles, videoFile, pdfFile) {
                 let manifestXML = `<?xml version="1.0" encoding="UTF-8"?>
                 <manifest xmlns="http://www.imsglobal.org/xsd/imscp_v1p1" identifier="curso-completo" version="1.0">
                     <metadata>
@@ -229,7 +228,7 @@
                     </organizations>
                     <resources>
                         <resource identifier="resource_video" type="webcontent" href="video.html">
-                            <file href="video/video.mp4"/>
+                            <file href="video/${videoFile.name}"/>
                             <file href="video.html"/>
                         </resource>
                         <resource identifier="resource_ficha" type="webcontent" href="ficha.html">
@@ -243,8 +242,8 @@
                             <file href="Build/BuildESP_SCORM.framework.js.unityweb"/>
                             <file href="Build/BuildESP_SCORM.wasm.unityweb"/>
                         </resource>
-                        <resource identifier="resource_pdf" type="webcontent" href="actividad/actividad.pdf">
-                            <file href="actividad/actividad.pdf"/>
+                        <resource identifier="resource_pdf" type="webcontent" href="actividad/${pdfFile.name}">
+                            <file href="actividad/${pdfFile.name}"/>
                         </resource>
                     </resources>
                 </manifest>`;
