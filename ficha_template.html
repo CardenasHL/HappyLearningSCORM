@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <title>Ficha</title>
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
+    <title>Ficha Didáctica</title>
     <style>
         .carousel-container {
             position: relative;
@@ -30,7 +30,7 @@
             width: auto;
             margin-top: -22px;
             padding: 16px;
-            color: #cccccc; /* Flechas gris claro visibles */
+            color: #cccccc;
             font-weight: bold;
             font-size: 18px;
             transition: 0.6s ease;
@@ -58,9 +58,8 @@
     </style>
 </head>
 <body>
-    <h1>Ficha</h1>
+    <h1>Ficha Didáctica</h1>
     <div class="carousel-container" id="carouselContainer">
-        <!-- Las imágenes del carrusel se generarán dinámicamente aquí -->
         <a class="prev" onclick="changeSlide(-1)">&#10094;</a>
         <a class="next" onclick="changeSlide(1)">&#10095;</a>
     </div>
@@ -68,45 +67,28 @@
     <script>
         let slideIndex = 0;
 
-        // Cargar dinámicamente las imágenes presentes en la carpeta "ficha"
-        function loadImagesFromFolder() {
-            let imageContainer = document.getElementById('carouselContainer');
+        function generateCarousel(images) {
+            let container = document.getElementById('carouselContainer');
 
-            fetch('ficha/')
-                .then(response => response.text())
-                .then(text => {
-                    let parser = new DOMParser();
-                    let doc = parser.parseFromString(text, 'text/html');
-                    let images = Array.from(doc.querySelectorAll('a')).map(a => a.href).filter(href => href.endsWith('.jpg') || href.endsWith('.jpeg') || href.endsWith('.png'));
+            images.forEach((image, index) => {
+                let slideDiv = document.createElement('div');
+                slideDiv.classList.add('carousel-slide');
 
-                    if (images.length > 0) {
-                        images.forEach((imgSrc, index) => {
-                            let slideDiv = document.createElement('div');
-                            slideDiv.classList.add('carousel-slide');
+                let imgElement = document.createElement('img');
+                imgElement.src = `ficha/${image}`;
+                imgElement.alt = `Ficha ${index + 1}`;
 
-                            let imgElement = document.createElement('img');
-                            imgElement.src = imgSrc;  // Ruta de la imagen
-                            imgElement.alt = `Ficha ${index + 1}`;
+                slideDiv.appendChild(imgElement);
+                container.insertBefore(slideDiv, container.querySelector('.next'));
+            });
 
-                            slideDiv.appendChild(imgElement);
-                            imageContainer.insertBefore(slideDiv, imageContainer.querySelector('.next')); // Insertar antes del botón "next"
-                        });
-
-                        // Mostrar la primera imagen
-                        showSlides(slideIndex);
-                    }
-                })
-                .catch(error => {
-                    console.error("Error al cargar las imágenes:", error);
-                });
+            showSlides(slideIndex);
         }
 
-        // Función para cambiar la diapositiva
         function changeSlide(n) {
             showSlides(slideIndex += n);
         }
 
-        // Mostrar las diapositivas
         function showSlides(n) {
             let slides = document.getElementsByClassName("carousel-slide");
             let prevBtn = document.querySelector(".prev");
@@ -114,27 +96,30 @@
 
             if (n >= slides.length - 1) {
                 slideIndex = slides.length - 1;
-                nextBtn.classList.add('disabled');  // Deshabilita la flecha siguiente
+                nextBtn.classList.add('disabled');
             } else {
                 nextBtn.classList.remove('disabled');
             }
 
             if (n <= 0) {
                 slideIndex = 0;
-                prevBtn.classList.add('disabled');  // Deshabilita la flecha anterior
+                prevBtn.classList.add('disabled');
             } else {
                 prevBtn.classList.remove('disabled');
             }
 
             for (let i = 0; i < slides.length; i++) {
-                slides[i].style.display = "none";  // Ocultar todas las diapositivas
+                slides[i].style.display = "none";
             }
 
-            slides[slideIndex].style.display = "block";  // Mostrar la diapositiva actual
+            slides[slideIndex].style.display = "block";
         }
 
-        // Inicializar el carrusel cuando se carga la página
-        window.onload = loadImagesFromFolder;
+        window.onload = function() {
+            let images = ["ficha1.jpg", "ficha2.jpg", "ficha3.jpg"];  // Cambiar dinámicamente
+            generateCarousel(images);
+        };
     </script>
+
 </body>
 </html>
