@@ -1,11 +1,18 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
     <title>Actividad PDF</title>
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
 </head>
 <body>
     <h1>Actividad PDF</h1>
-    <iframe src="actividad/actividad.pdf" width="100%" height="600px"></iframe>
+    <iframe id="pdfActivity" width="100%" height="600px"></iframe>
+
+    <script>
+        window.onload = function() {
+            let pdfSrc = "actividad.pdf";  // Cambiar dinámicamente
+            document.getElementById('pdfActivity').src = `actividad/${pdfSrc}`;
+        };
+    </script>
 </body>
 </html>
