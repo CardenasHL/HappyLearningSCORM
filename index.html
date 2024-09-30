@@ -47,7 +47,7 @@
     </style>
 </head>
 <body>
-    <h1>Generador de Paquetes SCORM v3.0</h1>
+    <h1>Generador de Paquetes SCORM v4.0</h1>
 
     <form id="scormForm">
         <label for="video">Subir Video (MP4):</label><br>
@@ -183,17 +183,21 @@
                 }
             }
 
+            // Función ajustada para detectar el nombre dinámico del ZIP del juego Unity
             async function procesarUnityZip(scormFolder, unityZipFile) {
                 if (unityZipFile) {
                     const unityZipContent = await JSZip.loadAsync(unityZipFile);
                     let buildFolder = scormFolder.folder("Build");
 
+                    // Detectar la carpeta del juego
+                    let rootFolder = Object.keys(unityZipContent.files)[0].split('/')[0]; // Detectar la carpeta raíz del ZIP
+
                     for (const [relativePath, file] of Object.entries(unityZipContent.files)) {
                         if (!file.dir) {
-                            if (relativePath.startsWith("juego/Build/")) {
+                            if (relativePath.startsWith(`${rootFolder}/Build/`)) {
                                 const fileData = await file.async("blob");
-                                buildFolder.file(relativePath.replace("juego/Build/", ""), fileData);
-                            } else if (relativePath === "juego/index.html") {
+                                buildFolder.file(relativePath.replace(`${rootFolder}/Build/`, ""), fileData);
+                            } else if (relativePath === `${rootFolder}/index.html`) {
                                 const fileData = await file.async("blob");
                                 scormFolder.file("index.html", fileData);
                             }
