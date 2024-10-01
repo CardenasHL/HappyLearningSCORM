@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,12 +9,12 @@
         body {
             font-family: 'Arial', sans-serif;
             text-align: center;
-            background-color: #f5f5f5;
+            background-color: #f1f1f1;
             margin: 0;
             padding: 0;
         }
-
         /* Cabecera */
+        
         h1 {
             background-color: #e3f2fd;
             border-radius: 20px;
@@ -25,16 +26,16 @@
             color: #333;
             border: 3px solid #90caf9;
         }
-
         /* Estilos para los títulos encima de los recursos */
+        
         .resource-title {
             font-size: 18px;
             font-weight: bold;
             color: #333;
             margin-bottom: 10px;
         }
-
         /* Contenedores de secciones */
+        
         .section-container {
             display: flex;
             justify-content: center;
@@ -42,8 +43,8 @@
             margin-top: 30px;
             flex-wrap: wrap;
         }
-
         /* Estilo básico para las secciones */
+        
         .section {
             background-color: #f8f9fa;
             border-radius: 10px;
@@ -60,21 +61,21 @@
             position: relative;
             cursor: pointer;
         }
-
         /* Icono del botón */
+        
         .section i {
             font-size: 40px;
             color: #6c757d;
         }
-
         /* Texto inicial */
+        
         .section .status-text {
             margin-top: 10px;
             font-size: 14px;
             color: #6c757d;
         }
-
         /* Información adicional sobre formatos */
+        
         .section .formats {
             font-size: 14px;
             color: #000;
@@ -82,33 +83,35 @@
             position: absolute;
             bottom: 10px;
         }
-
         /* Hover: cambiar color de fondo y mostrar información sobre formatos */
+        
         .section:hover {
             background-color: #6c757d;
             border: 2px solid #333;
         }
-
-        .section:hover i, .section:hover .status-text {
+        
+        .section:hover i,
+        .section:hover .status-text {
             color: #fff;
         }
-
+        
         .section:hover .formats {
             display: block;
         }
-
         /* Al seleccionar un archivo */
+        
         .section.filled {
             background-color: #b2dfdb;
             border: 2px solid #00796b;
         }
-
         /* Texto sobre el botón lleno */
-        .section.filled i, .section.filled .status-text {
+        
+        .section.filled i,
+        .section.filled .status-text {
             color: #00796b;
         }
-
         /* Botón para seleccionar archivos */
+        
         input[type="file"] {
             opacity: 0;
             position: absolute;
@@ -118,7 +121,7 @@
             height: 100%;
             cursor: pointer;
         }
-
+        
         .file-label {
             position: relative;
             display: inline-block;
@@ -130,8 +133,8 @@
             cursor: pointer;
             background-color: #f8f9fa;
         }
-
         /* Botón de Generar SCORM */
+        
         .generate-btn {
             background-color: #90caf9;
             border: none;
@@ -145,12 +148,12 @@
             margin-bottom: 30px;
             width: 300px;
         }
-
+        
         .generate-btn:hover {
             background-color: #42a5f5;
         }
-
         /* Progreso */
+        
         #progress-bar {
             width: 80%;
             background-color: #f3f3f3;
@@ -160,7 +163,7 @@
             display: none;
             margin: 0 auto;
         }
-
+        
         #progress-bar-fill {
             height: 20px;
             width: 0;
@@ -170,8 +173,8 @@
             line-height: 20px;
             color: white;
         }
-
         /* Spinner */
+        
         .loader {
             border: 16px solid #f3f3f3;
             border-radius: 50%;
@@ -182,60 +185,67 @@
             display: none;
             margin: 20px auto;
         }
-
+        
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
         }
-
+        
         #progress-text {
             text-align: center;
             margin-top: 10px;
         }
-
         /* Mensaje de error si faltan archivos */
+        
         #error-message {
             color: red;
             font-size: 16px;
             display: none;
             margin-top: 10px;
         }
-
         /* Fondo inferior en forma de nube */
+        
         .clouds {
             background-color: #90caf9;
             height: 100px;
             position: relative;
             margin-top: 50px;
         }
-
+        
         .cloud {
             position: absolute;
             background-color: #ffffff;
             border-radius: 50%;
             bottom: 0;
         }
-
         /* Ajustar las nubes para ser simétricas */
-        .cloud.small, .cloud.medium, .cloud.large, .cloud.extra-large {
+        
+        .cloud.small,
+        .cloud.medium,
+        .cloud.large,
+        .cloud.extra-large {
             width: 100px;
             height: 100px;
         }
-
+        
         .cloud.small {
             left: 30px;
             width: 60px;
             height: 60px;
         }
-
+        
         .cloud.medium {
             left: 100px;
         }
-
+        
         .cloud.extra-large {
             right: 100px;
         }
-
+        
         .cloud.large {
             right: 30px;
             width: 60px;
@@ -243,6 +253,7 @@
         }
     </style>
 </head>
+
 <body>
     <h1>HAPPY LEARNING - SCORM</h1>
 
@@ -310,15 +321,6 @@
     <!-- Mensaje de error -->
     <p id="error-message">Error: Debes subir todos los archivos necesarios antes de generar el paquete SCORM.</p>
 
-    <!-- Nubes decorativas al pie -->
-  <!--
-    <div class="clouds">
-        <div class="cloud small"></div>
-        <div class="cloud medium"></div>
-        <div class="cloud extra-large"></div>
-        <div class="cloud large"></div>
-    </div>
--->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jszip-utils@0.1.0/dist/jszip-utils.min.js"></script>
@@ -411,13 +413,20 @@
 
         function obtenerTextoPaso(paso) {
             switch (paso) {
-                case 0: return "Procesando el video...";
-                case 1: return "Agregando las fichas...";
-                case 2: return "Añadiendo la actividad PDF...";
-                case 3: return "Procesando la build de Unity...";
-                case 4: return "Generando el manifest...";
-                case 5: return "Generando y descargando el ZIP...";
-                default: return "";
+                case 0:
+                    return "Procesando el video...";
+                case 1:
+                    return "Agregando las fichas...";
+                case 2:
+                    return "Añadiendo la actividad PDF...";
+                case 3:
+                    return "Procesando la build de Unity...";
+                case 4:
+                    return "Generando el manifest...";
+                case 5:
+                    return "Generando y descargando el ZIP...";
+                default:
+                    return "";
             }
         }
 
@@ -438,6 +447,57 @@
             progressBar.textContent = "100%";
             progressElement.textContent = "Paquete SCORM generado y descargado.";
         }
+
+        // Aquí está la función para generar el manifest
+        function generarManifest(scormFolder, fichaFiles, videoFile, pdfFile) {
+            let manifestXML = `<?xml version="1.0" encoding="UTF-8"?>
+            <manifest xmlns="http://www.imsglobal.org/xsd/imscp_v1p1" xmlns:adlcp="http://www.adlnet.org/xsd/adlcp_v1p3" identifier="curso-completo" version="1.0">
+              <metadata>
+                <schema>ADL SCORM</schema>
+                <schemaversion>1.2</schemaversion>
+              </metadata>
+              <organizations default="org_1">
+                <organization identifier="org_1">
+                  <title>Curso Completo: Video, Ficha, Juego y Actividad</title>
+                  <item identifier="item_video" identifierref="resource_video">
+                    <title>Video Explicativo</title>
+                  </item>
+                  <item identifier="item_ficha" identifierref="resource_ficha">
+                    <title>Ficha Didáctica (Imágenes)</title>
+                  </item>
+                  <item identifier="item_juego" identifierref="resource_juego">
+                    <title>Juego Interactivo (Unity)</title>
+                  </item>
+                  <item identifier="item_pdf" identifierref="resource_pdf">
+                    <title>Actividad PDF para Descargar</title>
+                  </item>
+                </organization>
+              </organizations>
+              <resources>
+                <resource identifier="resource_video" type="webcontent" adlcp:scormType="asset" href="video.html">
+                  <file href="video/video.mp4"/>
+                  <file href="video.html"/>
+                </resource>
+                <resource identifier="resource_ficha" type="webcontent" adlcp:scormType="asset" href="ficha.html">
+                  ${Array.from(fichaFiles).map((file) => `<file href="ficha/${file.name}"/>`).join('')}
+                  <file href="ficha.html"/>
+                </resource>
+                <resource identifier="resource_juego" type="webcontent" adlcp:scormType="sco" href="index.html">
+                  <file href="index.html"/>
+                  <file href="Build/BuildESP_SCORM.loader.js"/>
+                  <file href="Build/BuildESP_SCORM.data.unityweb"/>
+                  <file href="Build/BuildESP_SCORM.framework.js.unityweb"/>
+                  <file href="Build/BuildESP_SCORM.wasm.unityweb"/>
+                </resource>
+                <resource identifier="resource_pdf" type="webcontent" adlcp:scormType="asset" href="actividad/actividad.pdf">
+                  <file href="actividad/actividad.pdf"/>
+                </resource>
+              </resources>
+            </manifest>`;
+
+            scormFolder.file("imsmanifest.xml", manifestXML);
+        }
     </script>
 </body>
+
 </html>
