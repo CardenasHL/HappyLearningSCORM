@@ -4,16 +4,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Happy Learning - SCORM</title>
+    <title>Generador SCORM - Happy Learning</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
             text-align: center;
-            background-color: #f1f1f1;
+            background-color: #f5f5f5;
             margin: 0;
             padding: 0;
         }
-        /* Cabecera */
         
         h1 {
             background-color: #e3f2fd;
@@ -26,7 +25,6 @@
             color: #333;
             border: 3px solid #90caf9;
         }
-        /* Estilos para los títulos encima de los recursos */
         
         .resource-title {
             font-size: 18px;
@@ -34,7 +32,6 @@
             color: #333;
             margin-bottom: 10px;
         }
-        /* Contenedores de secciones */
         
         .section-container {
             display: flex;
@@ -43,7 +40,6 @@
             margin-top: 30px;
             flex-wrap: wrap;
         }
-        /* Estilo básico para las secciones */
         
         .section {
             background-color: #f8f9fa;
@@ -61,20 +57,17 @@
             position: relative;
             cursor: pointer;
         }
-        /* Icono del botón */
         
         .section i {
             font-size: 40px;
             color: #6c757d;
         }
-        /* Texto inicial */
         
         .section .status-text {
             margin-top: 10px;
             font-size: 14px;
             color: #6c757d;
         }
-        /* Información adicional sobre formatos */
         
         .section .formats {
             font-size: 14px;
@@ -83,7 +76,6 @@
             position: absolute;
             bottom: 10px;
         }
-        /* Hover: cambiar color de fondo y mostrar información sobre formatos */
         
         .section:hover {
             background-color: #6c757d;
@@ -98,19 +90,16 @@
         .section:hover .formats {
             display: block;
         }
-        /* Al seleccionar un archivo */
         
         .section.filled {
             background-color: #b2dfdb;
             border: 2px solid #00796b;
         }
-        /* Texto sobre el botón lleno */
         
         .section.filled i,
         .section.filled .status-text {
             color: #00796b;
         }
-        /* Botón para seleccionar archivos */
         
         input[type="file"] {
             opacity: 0;
@@ -133,7 +122,6 @@
             cursor: pointer;
             background-color: #f8f9fa;
         }
-        /* Botón de Generar SCORM */
         
         .generate-btn {
             background-color: #90caf9;
@@ -152,7 +140,6 @@
         .generate-btn:hover {
             background-color: #42a5f5;
         }
-        /* Progreso */
         
         #progress-bar {
             width: 80%;
@@ -173,7 +160,6 @@
             line-height: 20px;
             color: white;
         }
-        /* Spinner */
         
         .loader {
             border: 16px solid #f3f3f3;
@@ -199,7 +185,6 @@
             text-align: center;
             margin-top: 10px;
         }
-        /* Mensaje de error si faltan archivos */
         
         #error-message {
             color: red;
@@ -207,59 +192,13 @@
             display: none;
             margin-top: 10px;
         }
-        /* Fondo inferior en forma de nube */
-        
-        .clouds {
-            background-color: #90caf9;
-            height: 100px;
-            position: relative;
-            margin-top: 50px;
-        }
-        
-        .cloud {
-            position: absolute;
-            background-color: #ffffff;
-            border-radius: 50%;
-            bottom: 0;
-        }
-        /* Ajustar las nubes para ser simétricas */
-        
-        .cloud.small,
-        .cloud.medium,
-        .cloud.large,
-        .cloud.extra-large {
-            width: 100px;
-            height: 100px;
-        }
-        
-        .cloud.small {
-            left: 30px;
-            width: 60px;
-            height: 60px;
-        }
-        
-        .cloud.medium {
-            left: 100px;
-        }
-        
-        .cloud.extra-large {
-            right: 100px;
-        }
-        
-        .cloud.large {
-            right: 30px;
-            width: 60px;
-            height: 60px;
-        }
     </style>
 </head>
 
 <body>
     <h1>HAPPY LEARNING - SCORM</h1>
 
-    <!-- Sección de Subida de Archivos -->
     <div class="section-container">
-        <!-- Vídeo -->
         <div>
             <p class="resource-title">Vídeo</p>
             <div class="section" id="video-section">
@@ -270,7 +209,6 @@
             </div>
         </div>
 
-        <!-- Ficha -->
         <div>
             <p class="resource-title">Ficha</p>
             <div class="section" id="fichas-section">
@@ -281,7 +219,6 @@
             </div>
         </div>
 
-        <!-- Juego -->
         <div>
             <p class="resource-title">Juego</p>
             <div class="section" id="unityZip-section">
@@ -292,7 +229,6 @@
             </div>
         </div>
 
-        <!-- Actividad PDF -->
         <div>
             <p class="resource-title">Actividad</p>
             <div class="section" id="pdf-section">
@@ -304,21 +240,16 @@
         </div>
     </div>
 
-    <!-- Botón de Generar SCORM -->
     <button class="generate-btn" onclick="generarSCORM()">GENERAR SCORM</button>
 
-    <!-- Spinner -->
     <div class="loader" id="loader"></div>
 
-    <!-- Barra de Progreso -->
     <div id="progress-bar">
         <div id="progress-bar-fill">0%</div>
     </div>
 
-    <!-- Texto de progreso -->
     <p id="progress-text"></p>
 
-    <!-- Mensaje de error -->
     <p id="error-message">Error: Debes subir todos los archivos necesarios antes de generar el paquete SCORM.</p>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
@@ -326,12 +257,9 @@
     <script src="https://cdn.jsdelivr.net/npm/jszip-utils@0.1.0/dist/jszip-utils.min.js"></script>
 
     <script>
-        // Cambia el color de la sección cuando se carga un archivo
         function handleFileChange(sectionId) {
             const section = document.getElementById(sectionId);
             section.classList.add('filled');
-
-            // Cambiar el texto cuando se ha subido un archivo
             const statusText = section.querySelector('.status-text');
             const inputFile = section.querySelector('input');
             if (inputFile.files.length > 0) {
@@ -339,7 +267,6 @@
             }
         }
 
-        // Función de validación antes de generar SCORM
         function validarArchivos() {
             let videoFile = document.getElementById("video").files[0];
             let fichaFiles = document.getElementById("fichas").files.length > 0;
@@ -354,7 +281,6 @@
             return true;
         }
 
-        // Función generarSCORM (el mismo código de antes que tenías)
         async function generarSCORM() {
             if (!validarArchivos()) {
                 return;
@@ -448,54 +374,131 @@
             progressElement.textContent = "Paquete SCORM generado y descargado.";
         }
 
-        // Aquí está la función para generar el manifest
+        // Agregar video
+        async function agregarVideo(scormFolder, videoFile) {
+            if (videoFile) {
+                scormFolder.folder("video").file(videoFile.name, videoFile);
+                const videoHtml = await fetch('video_template.html').then(res => res.text());
+                scormFolder.file("video.html", videoHtml.replace("video.mp4", videoFile.name));
+            }
+        }
+
+        // Agregar fichas
+        async function agregarFichas(scormFolder, fichaFiles) {
+            if (fichaFiles.length > 0) {
+                let fichaFolder = scormFolder.folder("ficha");
+                const fichaHtml = await fetch('ficha_template.html').then(res => res.text());
+                let fichaContent = fichaHtml;
+                for (let i = 0; i < fichaFiles.length; i++) {
+                    fichaFolder.file(fichaFiles[i].name, fichaFiles[i]);
+                    fichaContent = fichaContent.replace(`ficha${i+1}.jpg`, fichaFiles[i].name);
+                }
+                scormFolder.file("ficha.html", fichaContent);
+            }
+        }
+
+        // Agregar PDF
+        async function agregarPDF(scormFolder, pdfFile) {
+            if (pdfFile) {
+                scormFolder.folder("actividad").file(pdfFile.name, pdfFile);
+                const pdfHtml = await fetch('pdf_template.html').then(res => res.text());
+                scormFolder.file("pdf.html", pdfHtml.replace("actividad.pdf", pdfFile.name));
+            }
+        }
+
+        // Procesar la build de Unity
+        async function procesarUnityZip(scormFolder, unityZipFile) {
+            if (unityZipFile) {
+                const unityZipContent = await JSZip.loadAsync(unityZipFile);
+                let buildFolder = scormFolder.folder("Build");
+
+                // Detectar la carpeta del juego
+                let rootFolder = Object.keys(unityZipContent.files)[0].split('/')[0];
+
+                for (const [relativePath, file] of Object.entries(unityZipContent.files)) {
+                    if (!file.dir) {
+                        if (relativePath.startsWith(`${rootFolder}/Build/`)) {
+                            const fileData = await file.async("blob");
+                            buildFolder.file(relativePath.replace(`${rootFolder}/Build/`, ""), fileData);
+                        } else if (relativePath === `${rootFolder}/index.html`) {
+                            const fileData = await file.async("blob");
+                            scormFolder.file("index.html", fileData);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Generar imsmanifest.xml con el tipo de archivo SCORM
         function generarManifest(scormFolder, fichaFiles, videoFile, pdfFile) {
             let manifestXML = `<?xml version="1.0" encoding="UTF-8"?>
-            <manifest xmlns="http://www.imsglobal.org/xsd/imscp_v1p1" xmlns:adlcp="http://www.adlnet.org/xsd/adlcp_v1p3" identifier="curso-completo" version="1.0">
-              <metadata>
-                <schema>ADL SCORM</schema>
-                <schemaversion>1.2</schemaversion>
-              </metadata>
-              <organizations default="org_1">
-                <organization identifier="org_1">
-                  <title>Curso Completo: Video, Ficha, Juego y Actividad</title>
-                  <item identifier="item_video" identifierref="resource_video">
+    <manifest xmlns="http://www.imsglobal.org/xsd/imscp_v1p1"
+              xmlns:adlcp="http://www.adlnet.org/xsd/adlcp_v1p3"
+              identifier="curso-completo" version="1.0">
+        <metadata>
+            <schema>ADL SCORM</schema>
+            <schemaversion>1.2</schemaversion>
+        </metadata>
+        <organizations default="org_1">
+            <organization identifier="org_1">
+                <title>Curso Completo: Video, Ficha, Juego y Actividad</title>
+                <!-- Sección del Video -->
+                <item identifier="item_video" identifierref="resource_video">
                     <title>Video Explicativo</title>
-                  </item>
-                  <item identifier="item_ficha" identifierref="resource_ficha">
+                </item>
+                <!-- Sección de la Ficha Didáctica -->
+                <item identifier="item_ficha" identifierref="resource_ficha">
                     <title>Ficha Didáctica (Imágenes)</title>
-                  </item>
-                  <item identifier="item_juego" identifierref="resource_juego">
+                </item>
+                <!-- Sección del Juego de Unity -->
+                <item identifier="item_juego" identifierref="resource_juego">
                     <title>Juego Interactivo (Unity)</title>
-                  </item>
-                  <item identifier="item_pdf" identifierref="resource_pdf">
+                </item>
+                <!-- Sección de la Actividad PDF -->
+                <item identifier="item_pdf" identifierref="resource_pdf">
                     <title>Actividad PDF para Descargar</title>
-                  </item>
-                </organization>
-              </organizations>
-              <resources>
-                <resource identifier="resource_video" type="webcontent" adlcp:scormType="asset" href="video.html">
-                  <file href="video/video.mp4"/>
-                  <file href="video.html"/>
-                </resource>
-                <resource identifier="resource_ficha" type="webcontent" adlcp:scormType="asset" href="ficha.html">
-                  ${Array.from(fichaFiles).map((file) => `<file href="ficha/${file.name}"/>`).join('')}
-                  <file href="ficha.html"/>
-                </resource>
-                <resource identifier="resource_juego" type="webcontent" adlcp:scormType="sco" href="index.html">
-                  <file href="index.html"/>
-                  <file href="Build/BuildESP_SCORM.loader.js"/>
-                  <file href="Build/BuildESP_SCORM.data.unityweb"/>
-                  <file href="Build/BuildESP_SCORM.framework.js.unityweb"/>
-                  <file href="Build/BuildESP_SCORM.wasm.unityweb"/>
-                </resource>
-                <resource identifier="resource_pdf" type="webcontent" adlcp:scormType="asset" href="actividad/actividad.pdf">
-                  <file href="actividad/actividad.pdf"/>
-                </resource>
-              </resources>
-            </manifest>`;
+                </item>
+            </organization>
+        </organizations>
+        <resources>
+            <!-- Recurso: Video -->
+            <resource identifier="resource_video" type="webcontent" href="video.html" adlcp:scormtype="asset">
+                <file href="video/${videoFile.name}"/>
+                <file href="video.html"/>
+            </resource>
+            <!-- Recurso: Ficha Didáctica (Imágenes JPG) -->
+            <resource identifier="resource_ficha" type="webcontent" href="ficha.html" adlcp:scormtype="asset">
+                ${Array.from(fichaFiles).map((file) => `<file href="ficha/${file.name}"/>`).join('')}
+                <file href="ficha.html"/>
+            </resource>
+            <!-- Recurso: Juego Unity WebGL -->
+            <resource identifier="resource_juego" type="webcontent" href="index.html" adlcp:scormtype="sco">
+                <file href="index.html"/>
+                <file href="Build/BuildESP_SCORM.loader.js"/>
+                <file href="Build/BuildESP_SCORM.data.unityweb"/>
+                <file href="Build/BuildESP_SCORM.framework.js.unityweb"/>
+                <file href="Build/BuildESP_SCORM.wasm.unityweb"/>
+            </resource>
+            <!-- Recurso: Actividad PDF -->
+            <resource identifier="resource_pdf" type="webcontent" href="actividad/${pdfFile.name}" adlcp:scormtype="asset">
+                <file href="actividad/${pdfFile.name}"/>
+            </resource>
+        </resources>
+    </manifest>`;
 
             scormFolder.file("imsmanifest.xml", manifestXML);
+        }
+
+        // Generar ZIP final
+        async function generarZIP(zip) {
+            const blob = await zip.generateAsync({ type: "blob" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "scorm_package.zip";
+
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
     </script>
 </body>
