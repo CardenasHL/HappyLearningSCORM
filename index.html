@@ -199,43 +199,47 @@
     <h1>HAPPY LEARNING - SCORM v_0.1</h1>
 
     <div class="section-container">
+        <!-- Video -->
         <div>
             <p class="resource-title">Vídeo</p>
-            <div class="section" id="video-section">
+            <div class="section" id="video-section" ondrop="dropHandler(event, 'video')" ondragover="dragOverHandler(event)">
                 <i class="fas fa-cloud-upload-alt"></i>
                 <p class="status-text">No hay ningún archivo subido</p>
                 <p class="formats">Formato: .mp4</p>
-                <label class="file-label">Seleccionar archivo<input type="file" id="video" accept=".mp4" onchange="handleFileChange('video-section')"></label>
+                <input type="file" id="video" accept=".mp4" onchange="handleFileChange('video-section')">
             </div>
         </div>
 
+        <!-- Ficha -->
         <div>
             <p class="resource-title">Ficha</p>
-            <div class="section" id="fichas-section">
+            <div class="section" id="fichas-section" ondrop="dropHandler(event, 'fichas')" ondragover="dragOverHandler(event)">
                 <i class="fas fa-cloud-upload-alt"></i>
                 <p class="status-text">No hay ningún archivo subido</p>
                 <p class="formats">Formato: .jpg</p>
-                <label class="file-label">Seleccionar archivo<input type="file" id="fichas" accept=".jpg" multiple onchange="handleFileChange('fichas-section')"></label>
+                <input type="file" id="fichas" accept=".jpg" multiple onchange="handleFileChange('fichas-section')">
             </div>
         </div>
 
+        <!-- Juego -->
         <div>
             <p class="resource-title">Juego</p>
-            <div class="section" id="unityZip-section">
+            <div class="section" id="unityZip-section" ondrop="dropHandler(event, 'unityZip')" ondragover="dragOverHandler(event)">
                 <i class="fas fa-cloud-upload-alt"></i>
                 <p class="status-text">No hay ningún archivo subido</p>
                 <p class="formats">Formato: .zip</p>
-                <label class="file-label">Seleccionar archivo<input type="file" id="unityZip" accept=".zip" onchange="handleFileChange('unityZip-section')"></label>
+                <input type="file" id="unityZip" accept=".zip" onchange="handleFileChange('unityZip-section')">
             </div>
         </div>
 
+        <!-- Actividad -->
         <div>
             <p class="resource-title">Actividad</p>
-            <div class="section" id="pdf-section">
+            <div class="section" id="pdf-section" ondrop="dropHandler(event, 'pdf')" ondragover="dragOverHandler(event)">
                 <i class="fas fa-cloud-upload-alt"></i>
                 <p class="status-text">No hay ningún archivo subido</p>
                 <p class="formats">Formato: .pdf</p>
-                <label class="file-label">Seleccionar archivo<input type="file" id="pdf" accept=".pdf" onchange="handleFileChange('pdf-section')"></label>
+                <input type="file" id="pdf" accept=".pdf" onchange="handleFileChange('pdf-section')">
             </div>
         </div>
     </div>
@@ -262,9 +266,22 @@
             section.classList.add('filled');
             const statusText = section.querySelector('.status-text');
             const inputFile = section.querySelector('input');
+
             if (inputFile.files.length > 0) {
-                statusText.textContent = inputFile.files[0].name;
+                let fileNames = Array.from(inputFile.files).map(file => file.name).join(', ');
+                statusText.textContent = fileNames;
             }
+        }
+
+        function dropHandler(ev, sectionId) {
+            ev.preventDefault();
+            const inputFile = document.getElementById(sectionId);
+            inputFile.files = ev.dataTransfer.files;
+            handleFileChange(sectionId + '-section');
+        }
+
+        function dragOverHandler(ev) {
+            ev.preventDefault();
         }
 
         function validarArchivos() {
